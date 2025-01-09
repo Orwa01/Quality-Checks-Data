@@ -1,16 +1,33 @@
-# This is a sample Python script.
+from WFP_SUDAN_CFSVA import run_cfsa
+from WFP_SUDAN_FSMS import run_fsms
+import streamlit as st
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# Set Streamlit page layout to wide
+st.set_page_config(layout="wide")
 
+# Initialize session state for first load
+if 'initialized' not in st.session_state:
+    st.session_state.initialized = True
+    st.session_state.run_cfsa = True
+    st.session_state.run_fsms = False
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Create a sidebar for navigation buttons
+st.sidebar.title("Navigation")
 
+# Add buttons to the sidebar
+if st.sidebar.button("View CFSA"):
+    st.session_state.run_cfsa = True
+    st.session_state.run_fsms = False
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+if st.sidebar.button("View FSMS"):
+    st.session_state.run_fsms = True
+    st.session_state.run_cfsa = False
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Display content based on session state
+if st.session_state.run_cfsa:
+    run_cfsa()
+    st.session_state.run_cfsa = False
+
+if st.session_state.run_fsms:
+    run_fsms()
+    st.session_state.run_fsms = False
