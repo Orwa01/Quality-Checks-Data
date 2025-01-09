@@ -7,7 +7,7 @@ import plotly.subplots as sp
 import streamlit as st
 from scipy.stats import pearsonr, spearmanr
 
-from WFP_SUDAN_CFSVA import load_logo, preprocess_data
+from WFP_SUDAN_CFSVA import load_logo
 
 
 def display_fsms_data(df):
@@ -1134,9 +1134,326 @@ def display_fsms_data(df):
             st.error(f"An error occurred while creating the progress table: {e}")
 
 
+def preprocess_fsms_data(df,residence_mapping):
+    df = df.rename(columns={"QState": "QState_orig",
+                            "Q2_4": "hh_size",
+                            "Q6_2_1": "Lcs_stress_DomAsset",
+                            "Q6_2_2": "Lcs_crisis_Health",
+                            "Q6_2_3": "Lcs_crisis_con_stock",
+                            "Q6_2_4": "Lcs_stress_Saving",
+                            "Q6_2_5": "Lcs_stress_accum_debt",
+                            "Q6_2_6": "Lcs_em_ResAsset",
+                            "Q6_2_7": "Lcs_stress_red_farm_liv_input",
+                            "Q6_2_8": "Lcs_em_last_female",
+                            "Q6_2_9": "Lcs_em_Begged",
+                            "Q6_2_10": "Lcs_crisis_wild_food",
+                            "Q3_1_1": "liv_activ_crops",
+                            "Q3_1_2": "liv_activ_livestock",
+                            "Q3_1_3": "liv_activ_donation_gift",
+                            "Q3_1_4": "liv_activ_business",
+                            "Q3_1_5": "liv_activ_agric_wage_labour",
+                            "Q3_1_6": "liv_activ_non_agric_wage_labour",
+                            "Q3_1_7": "liv_activ_sale _aid_Food",
+                            "Q3_1_8": "liv_activ_sale_firewood_charcoal",
+                            "Q3_1_9": "liv_activ_traditional_mining",
+                            "Q3_1_10": "liv_activ_salaried_work",
+                            "Q3_1_11": "liv_activ_begging",
+                            "Q3_1_12": "liv_activ_remittances",
+                            "Q3_1_13": "liv_activ_pension",
+                            "Q7_2_1": "Q7_2_1_HH_own_cattle",
+                            "Q7_2_2": "Q7_2_2_HH_own_donkey",
+                            "Q7_2_3": "Q7_2_3_HH_own_camel",
+                            "Q7_2_4": "Q7_2_4_HH_own_goats_sheep",
+                            "Q7_2_5": "Q7_2_5_HH_own_poultry",
+                            "Q6_6": "Q6_6_HHSNoFood",
+                            "Q6_7": "Q6_7_HHSNoFood_FR",
+                            "Q6_8": "Q6_8_HHSBedHung",
+                            "Q6_9": "Q6_9_HHSBedHung_FR",
+                            "Q6_10": "Q6_10_HHSNotEat",
+                            "Q6_11": "Q6_11_HHSNotEat_FR"
+
+                            })
+
+    state_mapping = {
+        1: "North Darfur",
+        2: "South Darfur",
+        3: "West Darfur",
+        4: "Central Darfur",
+        5: "East Darfur",
+        6: "Kassala",
+        7: "Red Sea",
+        8: "Blue Nile",
+        9: "White nile",
+        10: "North Kordofan",
+        11: "West Kordofan",
+        12: "South Kordofan",
+        13: "Gadarif",
+        14: "Khartoum",
+        15: "Sinnar",
+        16: "AL Shimalia",
+        17: "AL Gazira",
+        18: "River Nile"
+    }
+
+    # CREATING A COLUMN OF State with labels -
+    df['QState'] = df['QState_orig'].map(state_mapping)
+
+    # Map numeric values to descriptive labels
+    gender_mapping = {1: 'Male', 2: 'Female'}
+    df['Q2_2a'] = df['Q2_2a'].map(gender_mapping)
+
+    # Map numeric values to descriptive labels
+    df['Q2_1'] = df['Q2_1'].map(residence_mapping)
+
+    ###**********************CREATE ENUMERATOR AND DAY COLUMNS****************************************************************
+    import pandas as pd
+    import numpy as np
+
+    # Let's assume your data has a 'State' column.
+    # If it's named differently, rename the code references accordingly.
+
+    # Define the enumerators
+    enumerator_names = ["A", "B", "C", "D", "F", "G", "H"]
+
+    def assign_enumerators_and_days(group):
+        """
+        This function will be applied to each state group:
+        1. Assign enumerators in a repeating sequence (A, B, C, D).
+        2. Assign Day values in a manner that ensures each enumerator
+        has at least 5 different days of data collection.
+        """
+        n = len(group)
+
+        # --- 1) Assign enumerators in a round-robin manner ---
+        enumerators = np.tile(enumerator_names, (n // 4) + 1)[:n]
+        group["Enumerator"] = enumerators
+
+        # --- 2) Assign Day values so each enumerator has at least 5 days ---
+        # For simplicity, we'll assign days in a repeating pattern [1..5]
+        # for each enumerator, enough times to cover all rows for that enumerator.
+
+        # Create an empty list to store subgroups with Days assigned
+        output_subgroups = []
+
+        for enum in enumerator_names:
+            # Filter the group for current enumerator
+            enum_sub = group[group["Enumerator"] == enum].copy()
+            # Number of rows for this enumerator
+            sub_count = len(enum_sub)
+
+            # Create day values from 1..5 repeated enough times
+            days = np.tile(np.arange(1, 6), (sub_count // 5) + 1)[:sub_count]
+            enum_sub["Day"] = days
+
+            output_subgroups.append(enum_sub)
+
+        # Concatenate the enumerator subgroups back together
+        group_with_days = pd.concat(output_subgroups).sort_index()
+
+        return group_with_days
+
+    # 2. Group by State and apply the enumerator/day assignment
+    df = df.groupby("QState", group_keys=False).apply(assign_enumerators_and_days)
+
+    food_con_7days_columns = ["Q5_1a", "Q5_2a", "Q5_3a", "Q5_4a", "Q5_4_1a", "Q5_4_2a", "Q5_4_3a", "Q5_4_4a",
+                              "Q5_5a", "Q5_5_1a", "Q5_5_2a", "Q5_6a", "Q5_6_1a", "Q5_7a", "Q5_8a", "Q5_9a"]
+
+    df['food_con_7days_sum'] = df[food_con_7days_columns].sum(axis=1)
+
+    df['fcs'] = df["Q5_1a"] * 2 + df["Q5_2a"] * 3 + df["Q5_3a"] * 4 + df["Q5_4a"] * 4 + df["Q5_5a"] * 1 + df[
+        "Q5_6a"] * 1 + df["Q5_7a"] * 0.5 + df["Q5_8a"] * 0.5 + df["Q5_9a"] * 0
+
+    # Assuming `df` is your DataFrame and `fcs` is a column in it
+    # Define the new column 'fcs_categories' based on conditions
+    conditions = [
+        (df['fcs'] <= 28),  # Low range
+        (df['fcs'] > 28) & (df['fcs'] <= 42),  # Mid range
+        (df['fcs'] > 42)  # High range
+    ]
+
+    # Assign categories based on conditions
+    categories = [3, 2, 1]  # Poor, Borderline, Acceptable
+    df['fcs_categories'] = pd.cut(df['fcs'], bins=[-float('inf'), 28, 42, float('inf')], labels=[3, 2, 1])
+
+    # Optional: Add human-readable labels
+    value_labels = {1: 'Acceptable', 2: 'Borderline', 3: 'Poor'}
+    df['fcs_categories_labels'] = df['fcs_categories'].map(value_labels)
+
+    df['rCSILessQlty'] = df['Q6_1_1']
+    df['rCSIBorrow'] = df['Q6_1_2']
+    df['rCSIMealNb'] = df['Q6_1_5']
+    df['rCSIMealSize'] = df['Q6_1_3']
+    df['rCSIMealAdult'] = df['Q6_1_4']
+
+    # Assign labels to variables (in comments for documentation)
+    variable_labels = {
+        'rCSILessQlty': 'Rely on less preferred and less expensive food in the past 7 days',
+        'rCSIBorrow': 'Borrow food or rely on help from a relative or friend in the past 7 days',
+        'rCSIMealNb': 'Reduce number of meals eaten in a day in the past 7 days',
+        'rCSIMealSize': 'Limit portion size of meals at meal times in the past 7 days',
+        'rCSIMealAdult': 'Restrict consumption by adults in order for small children to eat in the past 7 days',
+        'rCSI': 'Reduced coping strategies index (rCSI)'
+    }
+
+    # Compute rCSI
+    df['rCSI'] = (df['rCSILessQlty'] * 1 +
+                  df['rCSIBorrow'] * 2 +
+                  df['rCSIMealNb'] * 1 +
+                  df['rCSIMealSize'] * 1 +
+                  df['rCSIMealAdult'] * 3)
+
+    # Recoding G_rCSI into categories based on thresholds
+    def recode_rCSI(value):
+        if value <= 3:
+            return 1
+        elif 4 <= value <= 18:
+            return 2
+        else:
+            return 3
+
+    df['rCSI_IPC'] = df['rCSI'].apply(recode_rCSI)
+
+    # Assigning value labels for G_rCSI_IPC
+    value_labels = {
+        1: 'Minimal',
+        2: 'Stressed',
+        3: 'Crisis-Emergency'
+    }
+
+    df['rCSI_IPC_Label'] = df['rCSI_IPC'].map(value_labels)
+
+    # Recoding G_rCSI into categories based on thresholds for WFP Sudan
+    def recode_rCSI(value):
+        if value <= 5:
+            return 1
+        elif 6 <= value <= 11:
+            return 2
+        else:
+            return 3
+
+    df['rCSI_WFP'] = df['rCSI'].apply(recode_rCSI)
+
+    # Assigning value labels for G_rCSI_IPC
+    value_labels = {
+        1: 'Low (<6)',
+        2: 'Medium (6-11)',
+        3: 'High (>11)'
+    }
+
+    df['rCSI_WFP_Label'] = df['rCSI_WFP'].map(value_labels)
+
+    # Cleaning of HHS variables
+    # HHSNoFood and HHSNoFood_FR
+    df['Q6_6_HHSNoFood'] = df['Q6_7_HHSNoFood_FR'].apply(lambda x: 1 if x > 0 else 0)
+
+    # HHSBedHung and HHSBedHung_FR
+    df['Q6_9_HHSBedHung_FR'] = df['Q6_8_HHSBedHung'].apply(lambda x: 1 if x > 0 else 0)
+
+    # HHSNotEat and HHSNotEat_FR
+    df['Q6_10_HHSNotEat'] = df['Q6_11_HHSNotEat_FR'].apply(lambda x: 1 if x > 0 else 0)
+
+    # Define a function to recode the frequency categories
+    def recode_frequency(value):
+        if value == 1 or value == 2:  # "rarely" or "sometimes"
+            return 1
+        elif value == 3:  # "often"
+            return 2
+        else:  # Any other value
+            return 0
+
+    # Apply the recoding to the relevant variables
+    df['HHSQ1'] = df['Q6_7_HHSNoFood_FR'].apply(recode_frequency)
+    df['HHSQ2'] = df['Q6_8_HHSBedHung'].apply(recode_frequency)
+    df['HHSQ3'] = df['Q6_11_HHSNotEat_FR'].apply(recode_frequency)
+
+    # Adding variable labels (can be added as comments or metadata in Python)
+    # 'HHSQ1': 'Was there ever no food to eat in HH?'
+    # 'HHSQ2': 'Did any HH member go sleep hungry?'
+    # 'HHSQ3': 'Did any HH member go whole day without food?'
+
+    # Compute the HHS score by summing HHSQ1, HHSQ2, and HHSQ3
+    df['HHS'] = df['HHSQ1'] + df['HHSQ2'] + df['HHSQ3']
+
+    # Recoding the HHS variable into categorical scores
+    def recode_hhs_cat(value):
+        if 0 <= value <= 1:
+            return 1  # No or little hunger in the household
+        elif 2 <= value <= 3:
+            return 2  # Moderate hunger in the household
+        elif value >= 4:
+            return 3  # Severe hunger in the household
+        else:
+            return None  # In case of unexpected values
+
+    df['HHSCat'] = df['HHS'].apply(recode_hhs_cat)
+
+    # Optional: Add human-readable labels
+    value_labels = {1: 'No or little hunger', 2: 'Moderate hunger', 3: 'Severe hunger'}
+    df['HHSCat_labels'] = df['HHSCat'].map(value_labels)
+
+    ##Calculate with IPC threshold
+
+    # Recoding HHS into HHS_IPC
+    def recode_hhs_ipc(value):
+        if value == 0:
+            return 1  # Minimal
+        elif value == 1:
+            return 2  # Stressed
+        elif 2 <= value <= 3:
+            return 3  # Crisis
+        elif value == 4:
+            return 4  # Emergency
+        elif 5 <= value <= 6:
+            return 5  # Catastrophe
+        else:
+            return None  # For unexpected values
+
+    df['HHS_IPC'] = df['HHS'].apply(recode_hhs_ipc)
+
+    # Optional: Add human-readable labels
+    value_labels = {1: 'Minimal', 2: 'Stressed', 3: 'Crisis', 4: 'Emergency', 5: 'Catastrophe'}
+    df['HHS_IPC_labels'] = df['HHS_IPC'].map(value_labels)
+
+    # Apply the logic to compute the `emergency_coping_FS` variable
+    df['emergency_coping_FS'] = df.apply(
+        lambda row: 4 if (
+                row['Lcs_em_ResAsset'] in [2, 4] or
+                row['Lcs_em_Begged'] in [2, 4] or
+                row['Lcs_em_last_female'] in [2, 4]
+        ) else 1, axis=1
+    )
+
+    # Apply the logic to compute the `crisis_coping_FS` variable
+    df['crisis_coping_FS'] = df.apply(
+        lambda row: 3 if (
+                row['Lcs_crisis_Health'] in [2, 4] or
+                row['Lcs_crisis_con_stock'] in [2, 4] or
+                row['Lcs_crisis_wild_food'] in [2, 4]
+        ) else 1, axis=1
+    )
+
+    # Apply the logic to compute the `stress_coping_FS` variable
+    df['stress_coping_FS'] = df.apply(
+        lambda row: 2 if (
+                row['Lcs_stress_Saving'] in [2, 4] or
+                row['Lcs_stress_accum_debt'] in [2, 4] or
+                row['Lcs_stress_red_farm_liv_input'] in [2, 4] or
+                row['Lcs_stress_DomAsset'] in [2, 4]
+        ) else 1, axis=1
+    )
+
+    ##Create column "LCS" that returns maximum of the other three created columns
+    df['LCS'] = df[['emergency_coping_FS', 'crisis_coping_FS', 'stress_coping_FS']].max(axis=1)
+
+    value_labels = {1: 'Minimal', 2: 'Stressed', 3: 'Crisis', 4: 'Emergency'}
+
+    # Optional: Add human-readable labels
+    df['LCS_labels'] = df['LCS'].map(value_labels)
+    return df
+
 def run_fsms():
     # Set working directory and load the dataset
-    df = pd.read_csv('data/FSMS_Dec_2024.csv', low_memory=False)
+    df = pd.read_csv('data/FSMS_Dec_2024.csv', low_memory=False, encoding = "ISO-8859-1")
     residence_mapping = {
         2: 'IDP in Camp',
         3: 'IDP outside camps',
@@ -1147,5 +1464,5 @@ def run_fsms():
         8: 'IDPs in Gathering points'
     }
     # df = preprocess_fsms_data(df, residence_mapping)
-    df = preprocess_data(df, residence_mapping)
+    df = preprocess_fsms_data(df, residence_mapping)
     display_fsms_data(df)
