@@ -1134,7 +1134,8 @@ def display_fsms_data(df):
             st.error(f"An error occurred while creating the progress table: {e}")
 
 
-def preprocess_fsms_data(df,residence_mapping):
+@st.cache_data
+def preprocess_fsms_data(df, residence_mapping):
     df = df.rename(columns={"QState": "QState_orig",
                             "Q2_4": "hh_size",
                             "Q6_2_1": "Lcs_stress_DomAsset",
@@ -1451,9 +1452,10 @@ def preprocess_fsms_data(df,residence_mapping):
     df['LCS_labels'] = df['LCS'].map(value_labels)
     return df
 
+
 def run_fsms():
     # Set working directory and load the dataset
-    df = pd.read_csv('data/FSMS_Dec_2024.csv', low_memory=False, encoding = "ISO-8859-1")
+    df = pd.read_csv('data/FSMS_Dec_2024.csv', low_memory=False, encoding="ISO-8859-1")
     residence_mapping = {
         2: 'IDP in Camp',
         3: 'IDP outside camps',
