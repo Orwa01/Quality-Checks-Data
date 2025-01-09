@@ -1191,7 +1191,7 @@ def preprocess_fsms_data(df, residence_mapping):
         13: "Gadarif",
         14: "Khartoum",
         15: "Sinnar",
-        16: "AL Shimalia",
+        16: "Northern State",
         17: "AL Gazira",
         18: "River Nile"
     }
