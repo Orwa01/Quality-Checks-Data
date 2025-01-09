@@ -1136,7 +1136,7 @@ def display_fsms_data(df):
 
 def run_fsms():
     # Set working directory and load the dataset
-    df = pd.read_csv('data/FSMS_Dec_2024_4.csv', low_memory=False)
+    df = pd.read_csv('data/FSMS_Dec_2024.csv', low_memory=False)
     residence_mapping = {
         2: 'IDP in Camp',
         3: 'IDP outside camps',
