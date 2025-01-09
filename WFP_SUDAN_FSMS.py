@@ -104,7 +104,7 @@ def display_fsms_data(df):
     """, unsafe_allow_html=True)
 
     # Add tabs for navigation
-    tab1, tab2, tab3 = st.tabs(["Progress Summary", "Dashboard", "Data Issues"])
+    tab1, tab2, tab3 = st.tabs(["Progress Summary", "Dashboard", "Data Issuessssss"])
 
     # Tab 2: Dashboard
     with tab2:
