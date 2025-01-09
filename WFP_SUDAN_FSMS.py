@@ -1184,7 +1184,7 @@ def preprocess_fsms_data(df, residence_mapping):
         6: "Kassala",
         7: "Red Sea",
         8: "Blue Nile",
-        9: "White nile",
+        9: "White Nile",
         10: "North Kordofan",
         11: "West Kordofan",
         12: "South Kordofan",
