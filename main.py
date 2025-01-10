@@ -21,33 +21,33 @@ def login():
         else:
             st.error("Invalid username or password. Please try again.")
 
-# Initialize session state for login
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+            # Initialize session state for login
+            if "logged_in" not in st.session_state:
+                st.session_state.logged_in = False
 
-# If not logged in, show login page
-if not st.session_state.logged_in:
-    login()
-else:
+            # If not logged in, show login page
+            if not st.session_state.logged_in:
+                login()
+            else:
 
-# Initialize session state for first load
-if 'initialized' not in st.session_state:
-    st.session_state.initialized = True
-    st.session_state.active_module = "cfsa"
+                # Initialize session state for first load
+                if 'initialized' not in st.session_state:
+                    st.session_state.initialized = True
+                    st.session_state.active_module = "cfsa"
 
-# Create a sidebar for navigation buttons
-st.sidebar.title("Navigation")
+                # Create a sidebar for navigation buttons
+                st.sidebar.title("Navigation")
 
-# Add buttons to the sidebar
-if st.sidebar.button("View CFSA"):
-    st.session_state.active_module = "cfsa"
+                # Add buttons to the sidebar
+                if st.sidebar.button("View CFSA"):
+                    st.session_state.active_module = "cfsa"
 
-if st.sidebar.button("View FSMS"):
-    st.session_state.active_module = "fsms"
+                if st.sidebar.button("View FSMS"):
+                    st.session_state.active_module = "fsms"
 
-# Display content based on session state
-if st.session_state.active_module == "cfsa":
-    run_cfsa()
+                # Display content based on session state
+                if st.session_state.active_module == "cfsa":
+                    run_cfsa()
 
-if st.session_state.active_module == "fsms":
-    run_fsms()
+                if st.session_state.active_module == "fsms":
+                    run_fsms()
