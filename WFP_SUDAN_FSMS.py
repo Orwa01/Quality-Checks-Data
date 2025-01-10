@@ -1078,61 +1078,6 @@ def display_fsms_data(df):
             )
             st.plotly_chart(residence_bar_chart, use_container_width=True)
 
-        # Create Progress Table
-
-        st.header("Records Collected per State per Enumerator")
-
-        try:
-            # --- Filter options for QState and Enumerator ---
-            qstate_options = sorted(df["QState"].unique())
-            enumerator_options = sorted(df["Enumerator"].unique())
-
-            # Sidebar filters for QState and Enumerator
-            selected_qstates = st.sidebar.multiselect("Filter by State (QState):", options=qstate_options,
-                                                      default=qstate_options)
-            selected_enumerators = st.sidebar.multiselect("Filter by Enumerator:", options=enumerator_options,
-                                                          default=enumerator_options)
-
-            # Apply the filters to the dataframe
-            filtered_df = df[df["QState"].isin(selected_qstates) & df["Enumerator"].isin(selected_enumerators)]
-
-            # --- 1) Create a pivot table ---
-            data_collection_summary = filtered_df.pivot_table(
-                index=["QState", "Enumerator"],  # Rows
-                columns="Day",  # Columns become unique Day values
-                aggfunc="size",  # Count the number of records
-                fill_value=0  # Fill missing Day/Enumerator combos with 0
-            )
-
-            # --- 2) Add a 'Total' column ---
-            data_collection_summary["Total"] = data_collection_summary.sum(axis=1)
-
-            # --- 3) Convert multi-index pivot table to a normal DataFrame ---
-            data_collection_summary = data_collection_summary.reset_index()
-
-            # --- 4) Rename Day columns to 'Day 1', 'Day 2', etc. ---
-            new_columns = []
-            for col in data_collection_summary.columns:
-                if isinstance(col, (int, float)):  # If the column is a number (Day values)
-                    new_columns.append(f"Day {int(col)}")
-                else:  # For non-Day columns
-                    new_columns.append(col)
-            data_collection_summary.columns = new_columns
-
-            # --- 5) Optional: Sort day columns for clarity ---
-            day_cols = [c for c in data_collection_summary.columns if c.startswith('Day ')]
-            day_cols_sorted = sorted(day_cols, key=lambda x: int(x.split(' ')[1]))  # Sort numerically by day number
-            final_cols = ["QState", "Enumerator"] + day_cols_sorted + ["Total"]
-            data_collection_summary = data_collection_summary[final_cols]
-
-            # --- Display the table in Streamlit ---
-            st.table(data_collection_summary)
-
-        except KeyError as e:
-            st.error(f"Missing expected column in the dataset: {e}")
-        except Exception as e:
-            st.error(f"An error occurred while creating the progress table: {e}")
-
 
 @st.cache_data
 def preprocess_fsms_data(df, residence_mapping):
