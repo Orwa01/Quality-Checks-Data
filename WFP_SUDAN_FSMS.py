@@ -139,6 +139,9 @@ def display_fsms_data(df):
             options=["All"] + list(states),
             default="All"
         )
+        # Apply filter
+        if "All" not in state_filter:
+            df = df[df['QState'].isin(state_filter)]
 
         # Count occurrences of each label (normalized to percentages)
         lcs_counts = df['LCS_labels'].value_counts(normalize=True) * 100
