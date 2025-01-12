@@ -1270,8 +1270,8 @@ def display_cfsva_data(df):
         # We expect a positive correlation
 
         # H0:ρ=0
-
-        "37. **Correlation between fcs & expenditure on food items:- We expect a positive correlation between fcs & expenditure on food**"
+        st.markdown(
+            "37. **Correlation between fcs & expenditure on food items:- We expect a positive correlation between fcs & expenditure on food**")
 
         # Ensure the columns exist
         if 'fcs' in df.columns and 'expenditure_food_items' in df.columns:
@@ -1287,7 +1287,8 @@ def display_cfsva_data(df):
             st.write("The required columns are missing.")
 
         ##*****************************************************************CONVERTING EXPENDITURE TO usd*********************************************************************
-        "38. **This is the summary of total expenditure on food items. The task is to find out whether or not the summary is realistic based on context, e.g. do minimum and maximum figures make sense?**"
+        st.markdown(
+            "38. **This is the summary of total expenditure on food items. The task is to find out whether or not the summary is realistic based on context, e.g. do minimum and maximum figures make sense?**")
 
         df['expenditure_food_items_offi_usd'] = df['expenditure_food_items'] / 1987
         df['expenditure_food_items_oth_market_usd'] = df['expenditure_food_items'] / 2350
@@ -1302,14 +1303,39 @@ def display_cfsva_data(df):
         })
 
         # Display the table in Streamlit
-        st.header("Descriptive Statistics")
+        st.header("Descriptive Statistics on food expenditure items")
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold;'>At household level</div>",
+            unsafe_allow_html=True
+        )
         st.table(combined_descriptions)
 
         ###************************************COMPARE THE EXPENDITURE PATTERN ACROSS FCS CATEGORIES**********************************************
         grouped_description = df.groupby('fcs_categories_labels', observed=True)[
             'expenditure_food_items_oth_market_usd'].describe()
+        ####################******START PERCAPITA EXPENDITURE ON FOOD ITEMS****#######################
+        df['per_capita_expenditure_food_items_offi_usd'] = df['expenditure_food_items_offi_usd'] / df['hh_size']
+        df['per_capita_expenditure_food_items_oth_market_usd'] = df['expenditure_food_items_oth_market_usd'] / df[
+            'hh_size']
 
-        "39. **We expect higher expenditure among those who have acceptable FCS compared to those having poor and borderline FCS. i.e. increase in expenditure from poor FCS to acceptable FCS, please check**"
+        # Descriptive statistics side by side
+        description_offi_usd = df['per_capita_expenditure_food_items_offi_usd'].describe()
+        description_oth_market_usd = df['per_capita_expenditure_food_items_oth_market_usd'].describe()
+
+        combined_descriptions = pd.DataFrame({
+            'Official Rate (USD)': description_offi_usd,
+            'Other Market Rate (USD)': description_oth_market_usd
+        })
+
+        # Display the table in Streamlit
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold;'>At per capita level/per household member level </div>",
+            unsafe_allow_html=True
+        )
+        st.table(combined_descriptions)
+        ####################*******END PERCAPITA EXPENDITURE ON FOOD ITEMS****######################
+        st.markdown(
+            "39. **We expect higher expenditure among those who have acceptable FCS compared to those having poor and borderline FCS. i.e. increase in expenditure from poor FCS to acceptable FCS, please check**")
 
         # Display the table in Streamlit
         st.header("Expenditure on food items across FCS categories")
@@ -1342,7 +1368,8 @@ def display_cfsva_data(df):
         else:
             st.write("No records found for this condition.")
 
-        "41. **We expect correlation coefficient between FCS & rCSI to be negative. We therefore run correlation test to confirm this**"
+        st.markdown(
+            "41. **We expect correlation coefficient between FCS & rCSI to be negative. We therefore run correlation test to confirm this**")
         # RUN CORRELATION TEST BETWEEN FCS & rCSI
 
         # We expect a positive correlation
@@ -1436,3 +1463,4 @@ def run_cfsa():
     }
     df = preprocess_data(df, residence_mapping)
     display_cfsva_data(df)
+
