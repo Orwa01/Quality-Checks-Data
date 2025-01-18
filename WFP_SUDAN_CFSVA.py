@@ -1386,6 +1386,87 @@ def display_cfsva_data(df):
         st.write(f"Spearman Correlation: {spearman_corr}")
         st.write(f"Spearman p-value: {spearman_p}")
 
+        ##***********************START OF HIGH SPENDING GREATER THAN 500USD PER HHs**********
+        # Bullet 42 Filter records based on the first condition
+
+        expenditure_food_items_too_high1 = df[df['expenditure_food_items_oth_market_usd'] > 500]
+
+        st.markdown(
+            "42. ***Records indicating HHs spending more than 500USD on food items - considered high***")
+        st.write(f"There are {len(expenditure_food_items_too_high1)} such records.")
+        if not expenditure_food_items_too_high1.empty:
+            # Convert DataFrame to CSV and encode to Base64
+            csv_high_exp = expenditure_food_items_too_high1.to_csv(index=False).encode()
+            b64_high_exp = base64.b64encode(csv_high_exp).decode()  # Encode as Base64 and decode to string
+            href_high_exp = f'<a href="data:file/csv;base64,{b64_high_exp}" download="filtered_data_high_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (greater than 500USD spending ) as CSV</a>'
+            st.markdown(href_high_exp, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+        ##***********************END OF HIGH SPENDING GREATER THAN 500USD PER HHs**********
+
+        ##***********************START OF HIGH SPENDING GREATER THAN 500USD PER CAPITA**********
+        # Bullet 43 Filter records based on the first condition
+
+        expenditure_food_items_too_high_per_capita = df[df['per_capita_expenditure_food_items_oth_market_usd'] > 80]
+
+        st.markdown(
+            "43. ***Records indicating per capita spending more than 80 USD on food items - considered high***")
+        st.write(f"There are {len(expenditure_food_items_too_high_per_capita)} such records.")
+        if not expenditure_food_items_too_high_per_capita.empty:
+            # Convert DataFrame to CSV and encode to Base64
+            csv_high_percap_exp = expenditure_food_items_too_high_per_capita.to_csv(index=False).encode()
+            b64_high_percap_exp = base64.b64encode(
+                csv_high_percap_exp).decode()  # Encode as Base64 and decode to string
+            href_high_percap_exp = f'<a href="data:file/csv;base64,{b64_high_percap_exp}" download="filtered_data_high_percap_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (greater than 80 usd spending ) as CSV</a>'
+            st.markdown(href_high_percap_exp, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+        ##***********************END OF HIGH SPENDING GREATER THAN 500USD PER CAPITA**********
+
+        ##***********************START OF HIGH HH SPENDING GREATER THAN 500USD BUT LESS THAN 80USD PER CAPITA SPENDING**********
+        # Bullet 44 Filter records based on the first condition
+
+        expenditure_food_items_too_high_hh_but_less_than_80_per_capita = df[
+            (df['per_capita_expenditure_food_items_oth_market_usd'] < 80) & (
+                        df['expenditure_food_items_oth_market_usd'] > 500)]
+
+        st.markdown(
+            "44. ***Records indicating per capita spending less than 80 USD on food items but HH spending greater than 500USD - considered high***")
+        st.write(f"There are {len(expenditure_food_items_too_high_hh_but_less_than_80_per_capita)} such records.")
+        if not expenditure_food_items_too_high_hh_but_less_than_80_per_capita.empty:
+            # Convert DataFrame to CSV and encode to Base64
+            csv_high_hh_percap_exp = expenditure_food_items_too_high_hh_but_less_than_80_per_capita.to_csv(
+                index=False).encode()
+            b64_high_hh_percap_exp = base64.b64encode(
+                csv_high_hh_percap_exp).decode()  # Encode as Base64 and decode to string
+            href_high_hh_percap_exp = f'<a href="data:file/csv;base64,{b64_high_hh_percap_exp}" download="filtered_data_high_hh_percap_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (less than 80 usd but hh more than 500usd) as CSV</a>'
+            st.markdown(href_high_hh_percap_exp, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+        ##***********************END OF HIGH HH SPENDING GREATER THAN 500USD BUT LESS THAN 80USD PER CAPITA SPENDING**********
+
+        ##***********************START OF LOW SPENDING GREATER THAN 15USD PER HHs**********
+        # Bullet 45 Filter records based on the first condition
+
+        expenditure_food_items_too_low1 = df[df['expenditure_food_items_oth_market_usd'] < 15]
+
+        st.markdown(
+            "45. ***Records indicating HHs spending less than 15 USD on food items - considered high***")
+        st.write(f"There are {len(expenditure_food_items_too_low1)} such records.")
+        if not expenditure_food_items_too_low1.empty:
+            # Convert DataFrame to CSV and encode to Base64
+            csv_low_exp = expenditure_food_items_too_low1.to_csv(index=False).encode()
+            b64_low_exp = base64.b64encode(csv_low_exp).decode()  # Encode as Base64 and decode to string
+            href_low_exp = f'<a href="data:file/csv;base64,{b64_low_exp}" download="filtered_data_low_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (less than 15 usd spending ) as CSV</a>'
+            st.markdown(href_low_exp, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+    ##***********************END OF LOW SPENDING GREATER THAN 15USD PER HHs**********
+
     # Define the total target
     TARGET = 18000  # Set your target number of samples here
 
