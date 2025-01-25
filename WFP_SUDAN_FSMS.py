@@ -1,11 +1,12 @@
 import base64
-
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import streamlit as st
 from scipy.stats import pearsonr, spearmanr
+import io
+from io import BytesIO
 
 from WFP_SUDAN_CFSVA import load_logo
 
@@ -250,10 +251,19 @@ def display_fsms_data(df):
         st.write(f"There are {len(expenditure_food_items_too_low_zero)} such records.")
 
         if not expenditure_food_items_too_low_zero.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_food_exp = expenditure_food_items_too_low_zero.to_csv(index=False).encode()
-            b64_food_exp = base64.b64encode(csv_food_exp).decode()  # Encode as Base64 and decode to string
-            href_food_exp = f'<a href="data:file/csv;base64,{b64_food_exp}" download="expenditure_food_items_too_low_zero.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Zero spending on food) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                expenditure_food_items_too_low_zero.to_excel(writer, index=False, sheet_name='Zero Spending Records')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_food_exp = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_food_exp = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_food_exp}" '
+                f'download="expenditure_food_items_too_low_zero.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Zero spending on food) as Excel</a>'
+            )
             st.markdown(href_food_exp, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -276,11 +286,19 @@ def display_fsms_data(df):
         st.write(f"There are {len(expenditure_education_gt_0_no_child)} such records.")
 
         if not expenditure_education_gt_0_no_child.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_edu_exp_gt_0_no_child = expenditure_education_gt_0_no_child.to_csv(index=False).encode()
-            b64_edu_exp_gt_0_no_child = base64.b64encode(
-                csv_edu_exp_gt_0_no_child).decode()  # Encode as Base64 and decode to string
-            href_edu_exp_gt_0_no_child = f'<a href="data:file/csv;base64,{b64_edu_exp_gt_0_no_child}" download="expenditure_education_gt_0_no_child.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (expenditure on education is greater than 0 but no child between 2 to 17 years) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                expenditure_education_gt_0_no_child.to_excel(writer, index=False, sheet_name='Expenditure Data')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_edu_exp_gt_0_no_child = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_edu_exp_gt_0_no_child = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_edu_exp_gt_0_no_child}" '
+                f'download="expenditure_education_gt_0_no_child.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (expenditure on education is greater than 0 but no child between 2 to 17 years) as Excel</a>'
+            )
             st.markdown(href_edu_exp_gt_0_no_child, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -306,11 +324,21 @@ def display_fsms_data(df):
         st.markdown(
             "3. **Records indicating invalid total income total proportions from current livelihood activities:**")
         st.write(f"There are {len(invalid_current_live_Income_Total)} such records.")
+
         if not invalid_current_live_Income_Total.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_liv_1 = invalid_current_live_Income_Total.to_csv(index=False).encode()
-            b64_liv_1 = base64.b64encode(csv_liv_1).decode()  # Encode as Base64 and decode to string
-            href_liv_1 = f'<a href="data:file/csv;base64,{b64_liv_1}" download="invalid_current_live_Income_Total.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (invalid income totals) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                invalid_current_live_Income_Total.to_excel(writer, index=False, sheet_name='Invalid Income Totals')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_liv_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_liv_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_liv_1}" '
+                f'download="invalid_current_live_Income_Total.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (invalid income totals) as Excel</a>'
+            )
             st.markdown(href_liv_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -337,16 +365,24 @@ def display_fsms_data(df):
         st.write(f"There are {len(food_con_7days_sum_zero)} such records.")
 
         if not food_con_7days_sum_zero.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_con_7days_sum_zero = food_con_7days_sum_zero.to_csv(index=False).encode()
-            b64_con_7days_sum_zero = base64.b64encode(
-                csv_con_7days_sum_zero).decode()  # Encode as Base64 and decode to string
-            href_con_7days_sum_zero = f'<a href="data:file/csv;base64,{b64_con_7days_sum_zero}" download="food_con_7days_sum_zero.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (HHs with no consumption of any food item in the last 7 days) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                food_con_7days_sum_zero.to_excel(writer, index=False, sheet_name='No Food Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_con_7days_sum_zero = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_con_7days_sum_zero = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_con_7days_sum_zero}" '
+                f'download="food_con_7days_sum_zero.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (HHs with no consumption of any food item in the last 7 days) as Excel</a>'
+            )
             st.markdown(href_con_7days_sum_zero, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 4: Filter records based on the first condition
+        # Bullet 5: Filter records based on the first condition
         filtered_data_q5_1 = df[
             (df['Q5_1c'] == 1) &
             ((df['Q5_1a'] == 0) | (df['Q5_1a'].isnull()))
@@ -354,11 +390,21 @@ def display_fsms_data(df):
         st.markdown(
             "5. **Records indicating no consumption of cereals in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_q5_1)} such records.")
+
         if not filtered_data_q5_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_q5_1 = filtered_data_q5_1.to_csv(index=False).encode()
-            b64_q5_1 = base64.b64encode(csv_q5_1).decode()  # Encode as Base64 and decode to string
-            href_q5_1 = f'<a href="data:file/csv;base64,{b64_q5_1}" download="filtered_data_q5_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Cereals) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_q5_1.to_excel(writer, index=False, sheet_name='Cereal Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_q5_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_q5_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_q5_1}" '
+                f'download="filtered_data_q5_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Cereals) as Excel</a>'
+            )
             st.markdown(href_q5_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -371,11 +417,21 @@ def display_fsms_data(df):
         st.markdown(
             "6. **Records indicating no consumption of cereals in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_q5_1)} such records.")
+
         if not filtered_data_q5_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_q5_1 = filtered_data_q5_1.to_csv(index=False).encode()
-            b64_q5_1 = base64.b64encode(csv_q5_1).decode()  # Encode as Base64 and decode to string
-            href_q5_1 = f'<a href="data:file/csv;base64,{b64_q5_1}" download="filtered_data_q5_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Cereals consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_q5_1.to_excel(writer, index=False, sheet_name='Cereal Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_q5_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_q5_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_q5_1}" '
+                f'download="filtered_data_q5_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Cereals consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_q5_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -388,16 +444,26 @@ def display_fsms_data(df):
         st.markdown(
             "7. **Records indicating no consumption of pulses in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_2)} such records.")
+
         if not filtered_data_Q5_2.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_2 = filtered_data_Q5_2.to_csv(index=False).encode()
-            b64_Q5_2 = base64.b64encode(csv_Q5_2).decode()  # Encode as Base64 and decode to string
-            href_Q5_2 = f'<a href="data:file/csv;base64,{b64_Q5_2}" download="filtered_data_Q5_2.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (pulses) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_2.to_excel(writer, index=False, sheet_name='Pulses Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_2 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_2 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_2}" '
+                f'download="filtered_data_Q5_2.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (pulses) as Excel</a>'
+            )
             st.markdown(href_Q5_2, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 8: Filter records based on the first condition
         # Select records where Q5_2 pulses 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_2 = df[
             (df['Q5_2c'] == 0) & ((df['Q5_2a'] == 7))]
@@ -405,11 +471,21 @@ def display_fsms_data(df):
         st.markdown(
             "8. **Records indicating no consumption of pulses in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_2)} such records.")
+
         if not filtered_data_Q5_2.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_2 = filtered_data_Q5_2.to_csv(index=False).encode()
-            b64_Q5_2 = base64.b64encode(csv_Q5_2).decode()  # Encode as Base64 and decode to string
-            href_Q5_2 = f'<a href="data:file/csv;base64,{b64_Q5_2}" download="filtered_data_Q5_2.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (pulses consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_2.to_excel(writer, index=False, sheet_name='Pulses Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_2 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_2 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_2}" '
+                f'download="filtered_data_Q5_2.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (pulses consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_2, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -422,16 +498,26 @@ def display_fsms_data(df):
         st.markdown(
             "9. **Records indicating no consumption of Milk in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_3)} such records.")
+
         if not filtered_data_Q5_3.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_3 = filtered_data_Q5_3.to_csv(index=False).encode()
-            b64_Q5_3 = base64.b64encode(csv_Q5_3).decode()  # Encode as Base64 and decode to string
-            href_Q5_3 = f'<a href="data:file/csv;base64,{b64_Q5_3}" download="filtered_data_Q5_3.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Milk) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_3.to_excel(writer, index=False, sheet_name='Milk Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_3 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_3 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_3}" '
+                f'download="filtered_data_Q5_3.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Milk) as Excel</a>'
+            )
             st.markdown(href_Q5_3, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 10: Filter records based on the first condition
         # Select records where Q5_3 Milk 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_3 = df[
             (df['Q5_3c'] == 0) & ((df['Q5_3a'] == 7))]
@@ -439,11 +525,21 @@ def display_fsms_data(df):
         st.markdown(
             "10. **Records indicating no consumption of Milk in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_3)} such records.")
+
         if not filtered_data_Q5_3.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_3 = filtered_data_Q5_3.to_csv(index=False).encode()
-            b64_Q5_3 = base64.b64encode(csv_Q5_3).decode()  # Encode as Base64 and decode to string
-            href_Q5_3 = f'<a href="data:file/csv;base64,{b64_Q5_3}" download="filtered_data_Q5_3.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Milk consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_3.to_excel(writer, index=False, sheet_name='Milk Consumption')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_3 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_3 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_3}" '
+                f'download="filtered_data_Q5_3.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Milk consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_3, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -456,11 +552,21 @@ def display_fsms_data(df):
         st.markdown(
             "11. **Records indicating no consumption of Meat, fish and eggs in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_4)} such records.")
+
         if not filtered_data_Q5_4.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4 = filtered_data_Q5_4.to_csv(index=False).encode()
-            b64_Q5_4 = base64.b64encode(csv_Q5_4).decode()  # Encode as Base64 and decode to string
-            href_Q5_4 = f'<a href="data:file/csv;base64,{b64_Q5_4}" download="filtered_data_Q5_4.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Meat, fish and eggs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4.to_excel(writer, index=False, sheet_name='Meat Fish Eggs')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4}" '
+                f'download="filtered_data_Q5_4.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Meat, fish and eggs) as Excel</a>'
+            )
             st.markdown(href_Q5_4, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -473,11 +579,21 @@ def display_fsms_data(df):
         st.markdown(
             "12. **Records indicating no consumption of Meat, fish and eggs in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_4)} such records.")
+
         if not filtered_data_Q5_4.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4 = filtered_data_Q5_4.to_csv(index=False).encode()
-            b64_Q5_4 = base64.b64encode(csv_Q5_4).decode()  # Encode as Base64 and decode to string
-            href_Q5_4 = f'<a href="data:file/csv;base64,{b64_Q5_4}" download="filtered_data_Q5_4.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Meat, fish and eggs consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4.to_excel(writer, index=False, sheet_name='Meat Fish Eggs')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4}" '
+                f'download="filtered_data_Q5_4.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Meat, fish and eggs consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_4, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -490,417 +606,654 @@ def display_fsms_data(df):
         st.markdown(
             "13. **Records indicating no consumption of Flesh meat in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_4_1)} such records.")
+
         if not filtered_data_Q5_4_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_1 = filtered_data_Q5_4_1.to_csv(index=False).encode()
-            b64_Q5_4_1 = base64.b64encode(csv_Q5_4_1).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_1 = f'<a href="data:file/csv;base64,{b64_Q5_4_1}" download="filtered_data_Q5_4_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Flesh meat) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_1.to_excel(writer, index=False, sheet_name='Flesh Meat')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_1}" '
+                f'download="filtered_data_Q5_4_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Flesh meat) as Excel</a>'
+            )
             st.markdown(href_Q5_4_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 14: Filter records based on the first condition
         # Select records where Q5_4_1 Flesh meat 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_4_1 = df[
             (df['Q5_4_1c'] == 0) & ((df['Q5_4_1a'] == 7))]
 
         st.markdown(
-            "15. **Records indicating no consumption of Flesh meat in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "14. **Records indicating no consumption of Flesh meat in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_4_1)} such records.")
+
         if not filtered_data_Q5_4_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_1 = filtered_data_Q5_4_1.to_csv(index=False).encode()
-            b64_Q5_4_1 = base64.b64encode(csv_Q5_4_1).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_1 = f'<a href="data:file/csv;base64,{b64_Q5_4_1}" download="filtered_data_Q5_4_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Flesh meat consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_1.to_excel(writer, index=False, sheet_name='Flesh Meat')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_1}" '
+                f'download="filtered_data_Q5_4_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Flesh meat consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_4_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 16: Filter records based on the first condition
+        # Bullet 15: Filter records based on the first condition
         filtered_data_Q5_4_2 = df[
             (df['Q5_4_2c'] == 1) &
             ((df['Q5_4_2a'] == 0) | (df['Q5_4_2a'].isnull()))
             ]
         st.markdown(
-            "16. **Records indicating no consumption of Organ meat in the last 7 days but consumed in the last 24hrs:**")
+            "15. **Records indicating no consumption of Organ meat in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_4_2)} such records.")
+
         if not filtered_data_Q5_4_2.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_2 = filtered_data_Q5_4_2.to_csv(index=False).encode()
-            b64_Q5_4_2 = base64.b64encode(csv_Q5_4_2).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_2 = f'<a href="data:file/csv;base64,{b64_Q5_4_2}" download="filtered_data_Q5_4_2.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Organ meat) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_2.to_excel(writer, index=False, sheet_name='Organ Meat')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_2 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_2 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_2}" '
+                f'download="filtered_data_Q5_4_2.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Organ meat) as Excel</a>'
+            )
             st.markdown(href_Q5_4_2, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 16: Filter records based on the first condition
         # Select records where Q5_4_2 Organ meat 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_4_2 = df[
             (df['Q5_4_2c'] == 0) & ((df['Q5_4_2a'] == 7))]
 
         st.markdown(
-            "17. **Records indicating no consumption of Organ meat in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "16. **Records indicating no consumption of Organ meat in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_4_2)} such records.")
+
         if not filtered_data_Q5_4_2.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_2 = filtered_data_Q5_4_2.to_csv(index=False).encode()
-            b64_Q5_4_2 = base64.b64encode(csv_Q5_4_2).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_2 = f'<a href="data:file/csv;base64,{b64_Q5_4_2}" download="filtered_data_Q5_4_2.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Organ meat consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_2.to_excel(writer, index=False, sheet_name='Organ Meat')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_2 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_2 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_2}" '
+                f'download="filtered_data_Q5_4_2.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Organ meat consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_4_2, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 18: Filter records based on the first condition
+        # Bullet 17: Filter records based on the first condition
         filtered_data_Q5_4_3 = df[
             (df['Q5_4_3c'] == 1) &
             ((df['Q5_4_3a'] == 0) | (df['Q5_4_3a'].isnull()))
             ]
         st.markdown(
-            "18. **Records indicating no consumption of Fish/shellfish in the last 7 days but consumed in the last 24hrs:**")
+            "17. **Records indicating no consumption of Fish/shellfish in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_4_3)} such records.")
+
         if not filtered_data_Q5_4_3.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_3 = filtered_data_Q5_4_3.to_csv(index=False).encode()
-            b64_Q5_4_3 = base64.b64encode(csv_Q5_4_3).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_3 = f'<a href="data:file/csv;base64,{b64_Q5_4_3}" download="filtered_data_Q5_4_3.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Fish/shellfish) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_3.to_excel(writer, index=False, sheet_name='Fish Shellfish')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_3 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_3 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_3}" '
+                f'download="filtered_data_Q5_4_3.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Fish/shellfish) as Excel</a>'
+            )
             st.markdown(href_Q5_4_3, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 18: Filter records based on the first condition
         # Select records where Q5_4_3 Fish/shellfish 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_4_3 = df[
             (df['Q5_4_3c'] == 0) & ((df['Q5_4_3a'] == 7))]
 
         st.markdown(
-            "19. **Records indicating no consumption of Fish/shellfish in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "18. **Records indicating no consumption of Fish/shellfish in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_4_3)} such records.")
+
         if not filtered_data_Q5_4_3.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_3 = filtered_data_Q5_4_3.to_csv(index=False).encode()
-            b64_Q5_4_3 = base64.b64encode(csv_Q5_4_3).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_3 = f'<a href="data:file/csv;base64,{b64_Q5_4_3}" download="filtered_data_Q5_4_3.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Fish/shellfish consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_3.to_excel(writer, index=False, sheet_name='Fish Shellfish')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_3 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_3 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_3}" '
+                f'download="filtered_data_Q5_4_3.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Fish/shellfish consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_4_3, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
-
         ##20-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        # Bullet 20: Filter records based on the first condition
+        # Bullet 19: Filter records based on the first condition
         filtered_data_Q5_4_4 = df[
             (df['Q5_4_4c'] == 1) &
             ((df['Q5_4_4a'] == 0) | (df['Q5_4_4a'].isnull()))
             ]
         st.markdown(
-            "20. **Records indicating no consumption of Eggs in the last 7 days but consumed in the last 24hrs:**")
+            "19. **Records indicating no consumption of Eggs in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_4_4)} such records.")
+
         if not filtered_data_Q5_4_4.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_4 = filtered_data_Q5_4_4.to_csv(index=False).encode()
-            b64_Q5_4_4 = base64.b64encode(csv_Q5_4_4).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_4 = f'<a href="data:file/csv;base64,{b64_Q5_4_4}" download="filtered_data_Q5_4_4.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Eggs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_4.to_excel(writer, index=False, sheet_name='Eggs')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_4 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_4 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_4}" '
+                f'download="filtered_data_Q5_4_4.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Eggs) as Excel</a>'
+            )
             st.markdown(href_Q5_4_4, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 20: Filter records based on the first condition
         # Select records where Q5_4_4 Eggs 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_4_4 = df[
             (df['Q5_4_4c'] == 0) & ((df['Q5_4_4a'] == 7))]
 
         st.markdown(
-            "21. **Records indicating no consumption of Eggs in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "20. **Records indicating no consumption of Eggs in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_4_4)} such records.")
+
         if not filtered_data_Q5_4_4.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_4_4 = filtered_data_Q5_4_4.to_csv(index=False).encode()
-            b64_Q5_4_4 = base64.b64encode(csv_Q5_4_4).decode()  # Encode as Base64 and decode to string
-            href_Q5_4_4 = f'<a href="data:file/csv;base64,{b64_Q5_4_4}" download="filtered_data_Q5_4_4.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Eggs consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_4_4.to_excel(writer, index=False, sheet_name='Eggs')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_4_4 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_4_4 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_4_4}" '
+                f'download="filtered_data_Q5_4_4.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Eggs consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_4_4, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
+        ##21-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        ##22-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-        # Bullet 22: Filter records based on the first condition
+        # Bullet 21: Filter records based on the first condition
         filtered_data_Q5_5 = df[
             (df['Q5_5c'] == 1) &
             ((df['Q5_5a'] == 0) | (df['Q5_5a'].isnull()))
             ]
         st.markdown(
-            "22. **Records indicating no consumption of Vegetables and leaves in the last 7 days but consumed in the last 24hrs:**")
+            "21. **Records indicating no consumption of Vegetables and leaves in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_5)} such records.")
+
         if not filtered_data_Q5_5.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_5 = filtered_data_Q5_5.to_csv(index=False).encode()
-            b64_Q5_5 = base64.b64encode(csv_Q5_5).decode()  # Encode as Base64 and decode to string
-            href_Q5_5 = f'<a href="data:file/csv;base64,{b64_Q5_5}" download="filtered_data_Q5_5.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Vegetables and leaves) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_5.to_excel(writer, index=False, sheet_name='Vegetables and Leaves')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_5 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_5 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_5}" '
+                f'download="filtered_data_Q5_5.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Vegetables and leaves) as Excel</a>'
+            )
             st.markdown(href_Q5_5, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 22: Filter records based on the first condition
         # Select records where Q5_5 Vegetables and leaves 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_5 = df[
             (df['Q5_5c'] == 0) & ((df['Q5_5a'] == 7))]
 
         st.markdown(
-            "23. **Records indicating no consumption of Vegetables and leaves in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "22. **Records indicating no consumption of Vegetables and leaves in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_5)} such records.")
+
         if not filtered_data_Q5_5.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_5 = filtered_data_Q5_5.to_csv(index=False).encode()
-            b64_Q5_5 = base64.b64encode(csv_Q5_5).decode()  # Encode as Base64 and decode to string
-            href_Q5_5 = f'<a href="data:file/csv;base64,{b64_Q5_5}" download="filtered_data_Q5_5.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Vegetables and leaves consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_5.to_excel(writer, index=False, sheet_name='Vegetables and Leaves')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_5 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_5 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_5}" '
+                f'download="filtered_data_Q5_5.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Vegetables and leaves consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_5, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        ##24-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ##23-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Bullet 24: Filter records based on the first condition
+        # Bullet 23: Filter records based on the first condition
         filtered_data_Q5_5_1 = df[
             (df['Q5_5_1c'] == 1) &
             ((df['Q5_5_1a'] == 0) | (df['Q5_5_1a'].isnull()))
             ]
         st.markdown(
-            "24. **Records indicating no consumption of Orange vegetables in the last 7 days but consumed in the last 24hrs:**")
+            "23. **Records indicating no consumption of Orange vegetables in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_5_1)} such records.")
+
         if not filtered_data_Q5_5_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_5_1 = filtered_data_Q5_5_1.to_csv(index=False).encode()
-            b64_Q5_5_1 = base64.b64encode(csv_Q5_5_1).decode()  # Encode as Base64 and decode to string
-            href_Q5_5_1 = f'<a href="data:file/csv;base64,{b64_Q5_5_1}" download="filtered_data_Q5_5_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Orange vegetables) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_5_1.to_excel(writer, index=False, sheet_name='Orange Vegetables')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_5_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_5_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_5_1}" '
+                f'download="filtered_data_Q5_5_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Orange vegetables) as Excel</a>'
+            )
             st.markdown(href_Q5_5_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 24: Filter records based on the first condition
         # Select records where Q5_5_1 Orange vegetables 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_5_1 = df[
             (df['Q5_5_1c'] == 0) & ((df['Q5_5_1a'] == 7))]
 
         st.markdown(
-            "25. **Records indicating no consumption of Orange vegetables in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "24. **Records indicating no consumption of Orange vegetables in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_5_1)} such records.")
+
         if not filtered_data_Q5_5_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_5_1 = filtered_data_Q5_5_1.to_csv(index=False).encode()
-            b64_Q5_5_1 = base64.b64encode(csv_Q5_5_1).decode()  # Encode as Base64 and decode to string
-            href_Q5_5_1 = f'<a href="data:file/csv;base64,{b64_Q5_5_1}" download="filtered_data_Q5_5_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Orange vegetables consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_5_1.to_excel(writer, index=False, sheet_name='Orange Vegetables')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_5_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_5_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_5_1}" '
+                f'download="filtered_data_Q5_5_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Orange vegetables consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_5_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        ##26-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ##25-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Bullet 26: Filter records based on the first condition
+        # Bullet 25: Filter records based on the first condition
         filtered_data_Q5_5_2 = df[
             (df['Q5_5_2c'] == 1) &
             ((df['Q5_5_2a'] == 0) | (df['Q5_5_2a'].isnull()))
             ]
         st.markdown(
-            "26. **Records indicating no consumption of Green leafy vegetables in the last 7 days but consumed in the last 24hrs:**")
+            "25. **Records indicating no consumption of Green leafy vegetables in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_5_2)} such records.")
+
         if not filtered_data_Q5_5_2.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_5_2 = filtered_data_Q5_5_2.to_csv(index=False).encode()
-            b64_Q5_5_2 = base64.b64encode(csv_Q5_5_2).decode()  # Encode as Base64 and decode to string
-            href_Q5_5_2 = f'<a href="data:file/csv;base64,{b64_Q5_5_2}" download="filtered_data_Q5_5_2.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Green leafy vegetables) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_5_2.to_excel(writer, index=False, sheet_name='Green Leafy Vegetables')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_5_2 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_5_2 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_5_2}" '
+                f'download="filtered_data_Q5_5_2.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Green leafy vegetables) as Excel</a>'
+            )
             st.markdown(href_Q5_5_2, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 26: Filter records based on the first condition
         # Select records where Q5_5_2 Green leafy vegetables 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_5_2 = df[
             (df['Q5_5_2c'] == 0) & ((df['Q5_5_2a'] == 7))]
 
         st.markdown(
-            "27. **Records indicating no consumption of Green leafy vegetables in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "26. **Records indicating no consumption of Green leafy vegetables in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_5_2)} such records.")
+
         if not filtered_data_Q5_5_2.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_5_2 = filtered_data_Q5_5_2.to_csv(index=False).encode()
-            b64_Q5_5_2 = base64.b64encode(csv_Q5_5_2).decode()  # Encode as Base64 and decode to string
-            href_Q5_5_2 = f'<a href="data:file/csv;base64,{b64_Q5_5_2}" download="filtered_data_Q5_5_2.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Green leafy vegetables consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_5_2.to_excel(writer, index=False, sheet_name='Green Leafy Vegetables')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_5_2 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_5_2 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_5_2}" '
+                f'download="filtered_data_Q5_5_2.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Green leafy vegetables consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_5_2, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        ##28-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ##27-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Bullet 28: Filter records based on the first condition
+        # Bullet 27: Filter records based on the first condition
         filtered_data_Q5_6_1 = df[
             (df['Q5_6_1c'] == 1) &
             ((df['Q5_6_1a'] == 0) | (df['Q5_6_1a'].isnull()))
             ]
         st.markdown(
-            "28. **Records indicating no consumption of Orange fruits in the last 7 days but consumed in the last 24hrs:**")
+            "27. **Records indicating no consumption of Orange fruits in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_6_1)} such records.")
+
         if not filtered_data_Q5_6_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_6_1 = filtered_data_Q5_6_1.to_csv(index=False).encode()
-            b64_Q5_6_1 = base64.b64encode(csv_Q5_6_1).decode()  # Encode as Base64 and decode to string
-            href_Q5_6_1 = f'<a href="data:file/csv;base64,{b64_Q5_6_1}" download="filtered_data_Q5_6_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Orange fruits) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_6_1.to_excel(writer, index=False, sheet_name='Orange Fruits')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_6_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_6_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_6_1}" '
+                f'download="filtered_data_Q5_6_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Orange fruits) as Excel</a>'
+            )
             st.markdown(href_Q5_6_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
-
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 28: Filter records based on the first condition
         # Select records where Q5_6_1 Orange fruits 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_6_1 = df[
             (df['Q5_6_1c'] == 0) & ((df['Q5_6_1a'] == 7))]
 
         st.markdown(
-            "29. **Records indicating no consumption of Orange fruits in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "28. **Records indicating no consumption of Orange fruits in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_6_1)} such records.")
+
         if not filtered_data_Q5_6_1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_6_1 = filtered_data_Q5_6_1.to_csv(index=False).encode()
-            b64_Q5_6_1 = base64.b64encode(csv_Q5_6_1).decode()  # Encode as Base64 and decode to string
-            href_Q5_6_1 = f'<a href="data:file/csv;base64,{b64_Q5_6_1}" download="filtered_data_Q5_6_1.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (Orange fruits consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_6_1.to_excel(writer, index=False, sheet_name='Orange Fruits')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_6_1 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_6_1 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_6_1}" '
+                f'download="filtered_data_Q5_6_1.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (Orange fruits consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_6_1, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        ##30-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ##29-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Bullet 30: Filter records based on the first condition
+        # Bullet 29: Filter records based on the first condition
         filtered_data_Q5_6 = df[
             (df['Q5_6c'] == 1) &
             ((df['Q5_6a'] == 0) | (df['Q5_6a'].isnull()))
             ]
         st.markdown(
-            "30. **Records indicating no consumption of fruits in the last 7 days but consumed in the last 24hrs:**")
+            "29. **Records indicating no consumption of fruits in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_6)} such records.")
+
         if not filtered_data_Q5_6.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_6 = filtered_data_Q5_6.to_csv(index=False).encode()
-            b64_Q5_6 = base64.b64encode(csv_Q5_6).decode()  # Encode as Base64 and decode to string
-            href_Q5_6 = f'<a href="data:file/csv;base64,{b64_Q5_6}" download="filtered_data_Q5_6.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (fruits) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_6.to_excel(writer, index=False, sheet_name='Fruits')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_6 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_6 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_6}" '
+                f'download="filtered_data_Q5_6.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (fruits) as Excel</a>'
+            )
             st.markdown(href_Q5_6, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 30: Filter records based on the first condition
         # Select records where Q5_6 fruits 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_6 = df[
             (df['Q5_6c'] == 0) & ((df['Q5_6a'] == 7))]
 
         st.markdown(
-            "31. **Records indicating no consumption of fruits in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "30. **Records indicating no consumption of fruits in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_6)} such records.")
+
         if not filtered_data_Q5_6.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_6 = filtered_data_Q5_6.to_csv(index=False).encode()
-            b64_Q5_6 = base64.b64encode(csv_Q5_6).decode()  # Encode as Base64 and decode to string
-            href_Q5_6 = f'<a href="data:file/csv;base64,{b64_Q5_6}" download="filtered_data_Q5_6.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (fruits consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_6.to_excel(writer, index=False, sheet_name='Fruits')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_6 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_6 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_6}" '
+                f'download="filtered_data_Q5_6.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (fruits consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_6, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        ##32------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ##31------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Bullet 32: Filter records based on the first condition
+        # Bullet 31: Filter records based on the first condition
         filtered_data_Q5_7 = df[
             (df['Q5_7c'] == 1) &
             ((df['Q5_7a'] == 0) | (df['Q5_7a'].isnull()))
             ]
         st.markdown(
-            "32. **Records indicating no consumption of oil-fats in the last 7 days but consumed in the last 24hrs:**")
+            "31. **Records indicating no consumption of oil-fats in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_7)} such records.")
+
         if not filtered_data_Q5_7.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_7 = filtered_data_Q5_7.to_csv(index=False).encode()
-            b64_Q5_7 = base64.b64encode(csv_Q5_7).decode()  # Encode as Base64 and decode to string
-            href_Q5_7 = f'<a href="data:file/csv;base64,{b64_Q5_7}" download="filtered_data_Q5_7.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (oil-fats) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_7.to_excel(writer, index=False, sheet_name='Oil-Fats')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_7 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_7 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_7}" '
+                f'download="filtered_data_Q5_7.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (oil-fats) as Excel</a>'
+            )
             st.markdown(href_Q5_7, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 6: Filter records based on the first condition
+        # Bullet 32: Filter records based on the first condition
         # Select records where Q5_7 oil-fats 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_7 = df[
             (df['Q5_7c'] == 0) & ((df['Q5_7a'] == 7))]
 
         st.markdown(
-            "33. **Records indicating no consumption of oil-fats in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "32. **Records indicating no consumption of oil-fats in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_7)} such records.")
+
         if not filtered_data_Q5_7.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_7 = filtered_data_Q5_7.to_csv(index=False).encode()
-            b64_Q5_7 = base64.b64encode(csv_Q5_7).decode()  # Encode as Base64 and decode to string
-            href_Q5_7 = f'<a href="data:file/csv;base64,{b64_Q5_7}" download="filtered_data_Q5_7.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (oil-fats consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_7.to_excel(writer, index=False, sheet_name='Oil-Fats')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_7 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_7 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_7}" '
+                f'download="filtered_data_Q5_7.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (oil-fats consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_7, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 34: Filter records based on the first condition
+        # Bullet 33: Filter records based on the first condition
         filtered_data_Q5_8 = df[
             (df['Q5_8c'] == 1) &
             ((df['Q5_8a'] == 0) | (df['Q5_8a'].isnull()))
             ]
         st.markdown(
-            "34. **Records indicating no consumption of sugar in the last 7 days but consumed in the last 24hrs:**")
+            "33. **Records indicating no consumption of sugar in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_8)} such records.")
+
         if not filtered_data_Q5_8.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_8 = filtered_data_Q5_8.to_csv(index=False).encode()
-            b64_Q5_8 = base64.b64encode(csv_Q5_8).decode()  # Encode as Base64 and decode to string
-            href_Q5_8 = f'<a href="data:file/csv;base64,{b64_Q5_8}" download="filtered_data_Q5_8.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (sugar) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_8.to_excel(writer, index=False, sheet_name='Sugar')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_8 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_8 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_8}" '
+                f'download="filtered_data_Q5_8.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (sugar) as Excel</a>'
+            )
             st.markdown(href_Q5_8, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 35: Filter records based on the first condition
+        # Bullet 34: Filter records based on the first condition
         # Select records where Q5_8 sugar 24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_8 = df[
             (df['Q5_8c'] == 0) & ((df['Q5_8a'] == 7))]
 
         st.markdown(
-            "35. **Records indicating no consumption of sugar in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "34. **Records indicating no consumption of sugar in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_8)} such records.")
+
         if not filtered_data_Q5_8.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_8 = filtered_data_Q5_8.to_csv(index=False).encode()
-            b64_Q5_8 = base64.b64encode(csv_Q5_8).decode()  # Encode as Base64 and decode to string
-            href_Q5_8 = f'<a href="data:file/csv;base64,{b64_Q5_8}" download="filtered_data_Q5_8.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (sugar consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_8.to_excel(writer, index=False, sheet_name='Sugar')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_8 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_8 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_8}" '
+                f'download="filtered_data_Q5_8.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (sugar consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_8, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        ##34------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        ##35------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Bullet 34: Filter records based on the first condition
+        # Bullet 35: Filter records based on the first condition
         filtered_data_Q5_9 = df[
             (df['Q5_9c'] == 1) &
             ((df['Q5_9a'] == 0) | (df['Q5_9a'].isnull()))
             ]
         st.markdown(
-            "34. **Records indicating no consumption of condiments  in the last 7 days but consumed in the last 24hrs:**")
+            "35. **Records indicating no consumption of condiments in the last 7 days but consumed in the last 24hrs:**")
         st.write(f"There are {len(filtered_data_Q5_9)} such records.")
+
         if not filtered_data_Q5_9.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_9 = filtered_data_Q5_9.to_csv(index=False).encode()
-            b64_Q5_9 = base64.b64encode(csv_Q5_9).decode()  # Encode as Base64 and decode to string
-            href_Q5_9 = f'<a href="data:file/csv;base64,{b64_Q5_9}" download="filtered_data_Q5_9.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (condiments ) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_9.to_excel(writer, index=False, sheet_name='Condiments')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_9 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_9 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_9}" '
+                f'download="filtered_data_Q5_9.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (condiments) as Excel</a>'
+            )
             st.markdown(href_Q5_9, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
 
-        # Bullet 35: Filter records based on the first condition
+        # Bullet 36: Filter records based on the first condition
         # Select records where Q5_9 condiments  24 hours is 0 and 7 days is blank or 7
         filtered_data_Q5_9 = df[
             (df['Q5_9c'] == 0) & ((df['Q5_9a'] == 7))]
 
         st.markdown(
-            "35. **Records indicating no consumption of condiments  in the last 24 hours but consumed all day (7 days) in the last one week:**")
+            "36. **Records indicating no consumption of condiments in the last 24 hours but consumed all day (7 days) in the last one week:**")
         st.write(f"There are {len(filtered_data_Q5_9)} such records.")
+
         if not filtered_data_Q5_9.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_Q5_9 = filtered_data_Q5_9.to_csv(index=False).encode()
-            b64_Q5_9 = base64.b64encode(csv_Q5_9).decode()  # Encode as Base64 and decode to string
-            href_Q5_9 = f'<a href="data:file/csv;base64,{b64_Q5_9}" download="filtered_data_Q5_9.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (condiments  consumed all days last 7 days but not consumed in the last 24hrs) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                filtered_data_Q5_9.to_excel(writer, index=False, sheet_name='Condiments')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_Q5_9 = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_Q5_9 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_Q5_9}" '
+                f'download="filtered_data_Q5_9.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (condiments consumed all days last 7 days but not consumed in the last 24hrs) as Excel</a>'
+            )
             st.markdown(href_Q5_9, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -912,16 +1265,26 @@ def display_fsms_data(df):
         ##Except if in EXTREME cases, it will be very rare for many/any HHs to have such low FCS scores
         very_low_fcs = df[df['fcs'] < 10]
         st.markdown(
-            "36. **Records indicating very low FCS (less than 10 which is considered very rare):**")
+            "37. **Records indicating very low FCS (less than 10 which is considered very rare):**")
         st.write(f"There are {len(very_low_fcs)} such records.")
+
         if not very_low_fcs.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_low_fcs = very_low_fcs.to_csv(index=False).encode()
-            b64_low_fcs = base64.b64encode(csv_low_fcs).decode()  # Encode as Base64 and decode to string
-            href_low_fcs = f'<a href="data:file/csv;base64,{b64_low_fcs}" download="very_low_fcs.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (of very low FCS - less than 10) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                very_low_fcs.to_excel(writer, index=False, sheet_name='Very Low FCS')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_low_fcs = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_low_fcs = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_low_fcs}" '
+                f'download="very_low_fcs.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (of very low FCS - less than 10) as Excel</a>'
+            )
             st.markdown(href_low_fcs, unsafe_allow_html=True)
             st.write(
-                f"check the {len(very_low_fcs)} records across other columns such as expenditure, main livelihoods, HH size, etc. Do they make sense?")
+                f"Check the {len(very_low_fcs)} records across other columns such as expenditure, main livelihoods, HH size, etc. Do they make sense?")
         else:
             st.write("No records found for this condition.")
 
@@ -931,7 +1294,7 @@ def display_fsms_data(df):
 
         # H0:ρ=0
         st.markdown(
-            "37. **Correlation between fcs & expenditure on food items:- We expect a positive correlation between fcs & expenditure on food**")
+            "38. **Correlation between fcs & expenditure on food items:- We expect a positive correlation between fcs & expenditure on food**")
 
         # Ensure the columns exist
         if 'fcs' in df.columns and 'expenditure_food_items' in df.columns:
@@ -948,7 +1311,7 @@ def display_fsms_data(df):
 
         ##*****************************************************************CONVERTING EXPENDITURE TO usd*********************************************************************
         st.markdown(
-            "38. **This is the summary of total expenditure on food items. The task is to find out whether or not the summary is realistic based on context, e.g. do minimum and maximum figures make sense?**")
+            "39. **This is the summary of total expenditure on food items. The task is to find out whether or not the summary is realistic based on context, e.g. do minimum and maximum figures make sense?**")
 
         df['expenditure_food_items_offi_usd'] = df['expenditure_food_items'] / 1987
         df['expenditure_food_items_oth_market_usd'] = df['expenditure_food_items'] / 2350
@@ -995,7 +1358,7 @@ def display_fsms_data(df):
         st.table(combined_descriptions)
         ####################*******END PERCAPITA EXPENDITURE ON FOOD ITEMS****######################
         st.markdown(
-            "39. **We expect higher expenditure among those who have acceptable FCS compared to those having poor and borderline FCS. i.e. increase in expenditure from poor FCS to acceptable FCS, please check**")
+            "40. **We expect higher expenditure among those who have acceptable FCS compared to those having poor and borderline FCS. i.e. increase in expenditure from poor FCS to acceptable FCS, please check**")
 
         # Display the table in Streamlit
         st.header("Expenditure on food items across FCS categories")
@@ -1016,20 +1379,28 @@ def display_fsms_data(df):
         flagged_records = df[df['high_spending_poor']]
 
         st.markdown(
-            "40. **We do not expect households spending very high income on food to still have poor to bordeline FCS, We therefore need to flag such cases**")
+            "41. **We do not expect households spending very high income on food to still have poor to borderline FCS. We therefore need to flag such cases**")
         st.write(f"There are {len(flagged_records)} such records.")
+
         if not flagged_records.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_high_exp_poor_fcs = flagged_records.to_csv(index=False).encode()
-            b64_high_exp_poor_fcs = base64.b64encode(
-                csv_high_exp_poor_fcs).decode()  # Encode as Base64 and decode to string
-            href_high_exp_poor_fcs = f'<a href="data:file/csv;base64,{b64_high_exp_poor_fcs}" download="flagged_records.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (of poor-borderline FCS - but high spending) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                flagged_records.to_excel(writer, index=False, sheet_name='Flagged Records')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_high_exp_poor_fcs = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_high_exp_poor_fcs = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_high_exp_poor_fcs}" '
+                f'download="flagged_records.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (of poor-borderline FCS - but high spending) as Excel</a>'
+            )
             st.markdown(href_high_exp_poor_fcs, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
-
         st.markdown(
-            "41. **We expect correlation coefficient between FCS & rCSI to be negative. We therefore run correlation test to confirm this**")
+            "42. **We expect correlation coefficient between FCS & rCSI to be negative. We therefore run correlation test to confirm this**")
         # RUN CORRELATION TEST BETWEEN FCS & rCSI
 
         # We expect a positive correlation
@@ -1047,18 +1418,28 @@ def display_fsms_data(df):
         st.write(f"Spearman p-value: {spearman_p}")
 
         ##***********************START OF HIGH SPENDING GREATER THAN 500USD PER HHs**********
-        # Bullet 42 Filter records based on the first condition
+        # Bullet 43 Filter records based on the first condition
 
         expenditure_food_items_too_high1 = df[df['expenditure_food_items_oth_market_usd'] > 500]
 
         st.markdown(
-            "42. ***Records indicating HHs spending more than 500USD on food items - considered high***")
+            "43. ***Records indicating HHs spending more than 500USD on food items - considered high***")
         st.write(f"There are {len(expenditure_food_items_too_high1)} such records.")
+
         if not expenditure_food_items_too_high1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_high_exp = expenditure_food_items_too_high1.to_csv(index=False).encode()
-            b64_high_exp = base64.b64encode(csv_high_exp).decode()  # Encode as Base64 and decode to string
-            href_high_exp = f'<a href="data:file/csv;base64,{b64_high_exp}" download="filtered_data_high_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (greater than 500USD spending ) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                expenditure_food_items_too_high1.to_excel(writer, index=False, sheet_name='High Food Expenditure')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_high_exp = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_high_exp = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_high_exp}" '
+                f'download="filtered_data_high_exp.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (greater than 500USD spending) as Excel</a>'
+            )
             st.markdown(href_high_exp, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -1066,19 +1447,29 @@ def display_fsms_data(df):
         ##***********************END OF HIGH SPENDING GREATER THAN 500USD PER HHs**********
 
         ##***********************START OF HIGH SPENDING GREATER THAN 500USD PER CAPITA**********
-        # Bullet 43 Filter records based on the first condition
+        # Bullet 44 Filter records based on the first condition
 
         expenditure_food_items_too_high_per_capita = df[df['per_capita_expenditure_food_items_oth_market_usd'] > 80]
 
         st.markdown(
-            "43. ***Records indicating per capita spending more than 80 USD on food items - considered high***")
+            "44. ***Records indicating per capita spending more than 80 USD on food items - considered high***")
         st.write(f"There are {len(expenditure_food_items_too_high_per_capita)} such records.")
+
         if not expenditure_food_items_too_high_per_capita.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_high_percap_exp = expenditure_food_items_too_high_per_capita.to_csv(index=False).encode()
-            b64_high_percap_exp = base64.b64encode(
-                csv_high_percap_exp).decode()  # Encode as Base64 and decode to string
-            href_high_percap_exp = f'<a href="data:file/csv;base64,{b64_high_percap_exp}" download="filtered_data_high_percap_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (greater than 80 usd spending ) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                expenditure_food_items_too_high_per_capita.to_excel(writer, index=False,
+                                                                    sheet_name='High Per Capita Expenditure')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_high_percap_exp = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_high_percap_exp = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_high_percap_exp}" '
+                f'download="filtered_data_high_percap_exp.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (greater than 80 USD spending per capita) as Excel</a>'
+            )
             st.markdown(href_high_percap_exp, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -1086,22 +1477,32 @@ def display_fsms_data(df):
         ##***********************END OF HIGH SPENDING GREATER THAN 500USD PER CAPITA**********
 
         ##***********************START OF HIGH HH SPENDING GREATER THAN 500USD BUT LESS THAN 80USD PER CAPITA SPENDING**********
-        # Bullet 44 Filter records based on the first condition
+        # Bullet 45 Filter records based on the first condition
 
         expenditure_food_items_too_high_hh_but_less_than_80_per_capita = df[
             (df['per_capita_expenditure_food_items_oth_market_usd'] < 80) & (
                         df['expenditure_food_items_oth_market_usd'] > 500)]
 
         st.markdown(
-            "44. ***Records indicating per capita spending less than 80 USD on food items but HH spending greater than 500USD - considered high***")
+            "45. ***Records indicating per capita spending less than 80 USD on food items but HH spending greater than 500USD - considered high***")
         st.write(f"There are {len(expenditure_food_items_too_high_hh_but_less_than_80_per_capita)} such records.")
+
         if not expenditure_food_items_too_high_hh_but_less_than_80_per_capita.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_high_hh_percap_exp = expenditure_food_items_too_high_hh_but_less_than_80_per_capita.to_csv(
-                index=False).encode()
-            b64_high_hh_percap_exp = base64.b64encode(
-                csv_high_hh_percap_exp).decode()  # Encode as Base64 and decode to string
-            href_high_hh_percap_exp = f'<a href="data:file/csv;base64,{b64_high_hh_percap_exp}" download="filtered_data_high_hh_percap_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (less than 80 usd but hh more than 500usd) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                expenditure_food_items_too_high_hh_but_less_than_80_per_capita.to_excel(
+                    writer, index=False, sheet_name='High HH vs Low Per Capita'
+                )
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_high_hh_percap_exp = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_high_hh_percap_exp = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_high_hh_percap_exp}" '
+                f'download="filtered_data_high_hh_percap_exp.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (less than 80 USD per capita but HH spending greater than 500 USD) as Excel</a>'
+            )
             st.markdown(href_high_hh_percap_exp, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
@@ -1109,23 +1510,205 @@ def display_fsms_data(df):
         ##***********************END OF HIGH HH SPENDING GREATER THAN 500USD BUT LESS THAN 80USD PER CAPITA SPENDING**********
 
         ##***********************START OF LOW SPENDING GREATER THAN 15USD PER HHs**********
-        # Bullet 45 Filter records based on the first condition
+        # Bullet 46 Filter records based on the first condition
 
         expenditure_food_items_too_low1 = df[df['expenditure_food_items_oth_market_usd'] < 15]
 
         st.markdown(
-            "45. ***Records indicating HHs spending less than 15 USD on food items - considered high***")
+            "46. ***Records indicating HHs spending less than 15 USD on food items - considered high***")
         st.write(f"There are {len(expenditure_food_items_too_low1)} such records.")
+
         if not expenditure_food_items_too_low1.empty:
-            # Convert DataFrame to CSV and encode to Base64
-            csv_low_exp = expenditure_food_items_too_low1.to_csv(index=False).encode()
-            b64_low_exp = base64.b64encode(csv_low_exp).decode()  # Encode as Base64 and decode to string
-            href_low_exp = f'<a href="data:file/csv;base64,{b64_low_exp}" download="filtered_data_low_exp.csv" style="color: blue; text-decoration: underline;">Download Filtered Data (less than 15 usd spending ) as CSV</a>'
+            # Convert DataFrame to Excel
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                expenditure_food_items_too_low1.to_excel(writer, index=False, sheet_name='Low Food Expenditure')
+            excel_data = output.getvalue()
+
+            # Encode Excel data to Base64
+            b64_low_exp = base64.b64encode(excel_data).decode()  # Encode as Base64 and decode to string
+            href_low_exp = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_low_exp}" '
+                f'download="filtered_data_low_exp.xlsx" style="color: blue; text-decoration: underline;">'
+                f'Download Filtered Data (less than 15 USD spending) as Excel</a>'
+            )
             st.markdown(href_low_exp, unsafe_allow_html=True)
         else:
             st.write("No records found for this condition.")
+            # ******START OF *HHs HAVING ACCEPTABLE FCS BUT STILL REPORTED SEVERE HUNGER IN THE HOUSEHOLD****
 
-    ##***********************END OF LOW SPENDING GREATER THAN 15USD PER HHs**********
+        fcs_p1_hhs_6 = df[(df['fcs'] > 42) & (df['HHS'] > 4)]
+
+        st.markdown(
+            "47. ***Records indicating HHs having acceptable FCS but severe HHS; A strong correlation isn't systematically observed between FCS and HHS but a postive relation could be observed***"
+        )
+        st.write(f"There are {len(fcs_p1_hhs_6)} such records.")
+
+        if not fcs_p1_hhs_6.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                fcs_p1_hhs_6.to_excel(writer, sheet_name='fcs_acc_hhs_sev', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_fcs_acc_hhs_sev = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_fcs_acc_hhs_sev = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_fcs_acc_hhs_sev}" '
+                f'download="filtered_data_fcs_acc_hhs_sev.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (fcs acceptable but severe hhs) as Excel'
+                '</a>'
+            )
+            st.markdown(href_fcs_acc_hhs_sev, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+        # ******END OF *HHs HAVING ACCEPTABLE FCS BUT STILL REPORTED SEVERE HUNGER IN THE HOUSEHOLD****
+
+        # ******START OF *HHs HAVING FCS>42 AND rCSI>18****
+
+        rcsi_gt_18_fcs_gt_42 = df[(df['fcs'] > 42) & (df['rCSI'] > 18)]
+
+        st.markdown(
+            "48. ***Records indicating HHs having acceptable FCS but high rCSI (rcsi gt 18); Any HH that would have an acceptable FCS score (higher scores) and a high rCSI score is most likely indicative of data quality issue with one or both indicators***"
+        )
+        st.write(f"There are {len(rcsi_gt_18_fcs_gt_42)} such records.")
+
+        if not rcsi_gt_18_fcs_gt_42.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                rcsi_gt_18_fcs_gt_42.to_excel(writer, sheet_name='fcs_acc_rcsi_high', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_fcs_acc_rcsi_high = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_fcs_acc_rcsi_high = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_fcs_acc_rcsi_high}" '
+                f'download="filtered_data_fcs_acc_rcsi_high.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (fcs acceptable but rcsi high(gt 18)) as Excel'
+                '</a>'
+            )
+            st.markdown(href_fcs_acc_rcsi_high, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+        # ******END OF *HHs HAVING FCS>42 AND rCSI>18****
+
+        # ******START OF *HHs HAVING FCS>42 AND rCSI<4 AND HHS****
+
+        fcs_acc_rcsi_low_ls_4_hhs_gt_3 = df[(df['fcs'] > 42) & (df['rCSI'] < 4) & (df['HHS'] > 3)]
+
+        st.markdown(
+            "49. ***Records indicating HHs having acceptable FCS, low rCSI but moderate/severe HHS; FCS score, rCSI score and HHS score about 6 combinations would indicate non logical situation where FCS score is acceptable and rCSI is low but HHS score is moderate to very severe.***"
+        )
+        st.write(f"There are {len(fcs_acc_rcsi_low_ls_4_hhs_gt_3)} such records.")
+
+        if not fcs_acc_rcsi_low_ls_4_hhs_gt_3.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                fcs_acc_rcsi_low_ls_4_hhs_gt_3.to_excel(writer, sheet_name='fcs_acc_rcsi_low_hhs_mod_sev', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_fcs_acc_rcsi_low_hhs_mod_sev = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_fcs_acc_rcsi_low_hhs_mod_sev = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_fcs_acc_rcsi_low_hhs_mod_sev}" '
+                f'download="filtered_data_fcs_acc_rcsi_low_hhs_mod_sev.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (fcs acceptable, rcsi low but moderate/severe hhs as Excel'
+                '</a>'
+            )
+            st.markdown(href_fcs_acc_rcsi_low_hhs_mod_sev, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+        # ******END OF *HHs HAVING FCS>42 AND rCSI<4 AND HHS****
+
+        # ******START OF *HHs HAVING FCS>42 AND rCSI<4 AND HHS****
+        st.markdown(
+            "50. ***Running descriptive statistics to help flag unusual frequencies. However this may vary by states/locations***"
+        )
+        df = df.rename(columns={"Q5_1a": "Cereals_tubers",
+                                "Q5_2a": "Pulses",
+                                "Q5_3a": "Milk and Dairy products",
+                                "Q5_4a": "Proteins",
+                                "Q5_5a": "Vegetables",
+                                "Q5_6a": "Fruits",
+                                "Q5_7a": "Oils and fats",
+                                "Q5_8a": "Sugars",
+                                "Q5_9a": "Condiments"})
+
+        # Descriptive statistics side by side
+        average_cereals_tubers = df['Cereals_tubers'].describe()
+        average_pulses = df['Pulses'].describe()
+        average_milk_dairy = df['Milk and Dairy products'].describe()
+        average_Proteins = df['Proteins'].describe()
+        average_vegetables = df['Vegetables'].describe()
+        average_fruits = df['Fruits'].describe()
+        average_oils_fats = df['Oils and fats'].describe()
+        average_sugars = df['Sugars'].describe()
+        average_condiments = df['Condiments'].describe()
+
+        combined_descriptions_fcs = pd.DataFrame({
+            'Cereals & Tubers': average_cereals_tubers,
+            'Pulses': average_pulses,
+            'Milk & Dairy products': average_milk_dairy,
+            'Proteins': average_Proteins,
+            'Vegetables': average_vegetables,
+            'Fruits': average_fruits,
+            'Oils & Fats': average_oils_fats,
+            'Sugars': average_sugars,
+            'Condiments': average_condiments,
+        })
+
+        # Display the table in Streamlit
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold;'>Descriptive Statistics of food consumption frequesncies of different food groups.</div>",
+            unsafe_allow_html=True
+        )
+        st.table(combined_descriptions_fcs)
+
+        # ******END OF *HHs HAVING FCS>42 AND rCSI<4 AND HHS****
+
+        # ******START OF *LOW CONSUMPTION OF CEREALS & TUBERS****
+
+        fc_cereals_tubers_lt_4 = df[df["Cereals_tubers"] < 4]
+
+        st.markdown(
+            "51. ***Records indicating HHs having low frequency (less than 4 days) of cereal and tubers consumption***"
+        )
+        st.write(f"There are {len(fc_cereals_tubers_lt_4)} such records.")
+
+        if not fc_cereals_tubers_lt_4.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                fc_cereals_tubers_lt_4.to_excel(writer, sheet_name='fc_cereals_tubers_con_low', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_fc_cereals_tubers_con_low = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_fc_cereals_tubers_con_low = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_fc_cereals_tubers_con_low}" '
+                f'download="filtered_data_fc_cereals_tubers_con_low.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (low cereal and tubers consumption as Excel'
+                '</a>'
+            )
+            st.markdown(href_fc_cereals_tubers_con_low, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+    # ******END OF *START OF *LOW CONSUMPTION OF CEREALS & TUBERS****
+
     # Define the total target
     TARGET = 12000  # Set your target number of samples here
 
@@ -1510,7 +2093,7 @@ def preprocess_fsms_data(df, residence_mapping):
 
 def run_fsms():
     # Set working directory and load the dataset
-    df = pd.read_csv('data/FSMS_Dec_2024.csv', low_memory=False, encoding="ISO-8859-1")
+    df = pd.read_csv('data/FSMS_Dec_2024.txt', delimiter='\t', low_memory=False)
     residence_mapping = {
         2: 'IDP in Camp',
         3: 'IDP outside camps',
