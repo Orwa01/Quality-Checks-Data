@@ -2052,7 +2052,63 @@ def display_cfsva_data(df):
         else:
             st.write("No records found for this condition.")
     # ******END OF *START OF *LOW CONSUMPTION OF CEREALS & TUBERS****
+        # ******START OF *HHs HAVING FOOD EXPENDITURE GREATER THAN MEB BUT HAVING POOR TO BORDERLINE****
 
+        state_mapping_meb = {
+            "AL Gazira": 508,
+            "Blue Nile": 473,
+            "Central Darfur": 519,
+            "East Darfur": 519,
+            "Gadarif": 344,
+            "Kassala": 304,
+            "Khartoum": 370,
+            "River Nile": 356,
+            "North Darfur": 415,
+            "North Kordofan": 567,
+            "AL Shimalia": 465,
+            "Red Sea": 384,
+            "Sinnar": 327,
+            "South Darfur": 385,
+            "South Kordofan": 567,
+            "West Darfur": 294,
+            "West Kordofan": 380,
+            "White nile": 444
+        }
+
+        # CREATING A COLUMN OF State with labels -
+        df['meb_un_rate_usd'] = df['QState'].map(state_mapping_meb)
+
+        food_exp_gt_meb_fcs_bord_poor = df[
+            (df['fcs'] < 42.5) & (df['expenditure_food_items_oth_market_usd'] > df['meb_un_rate_usd'])]
+
+        st.markdown(
+            "52. ***Records indicating HHs having food expenditure greater than MEB but having poor to borderline***"
+        )
+        st.write(f"There are {len(food_exp_gt_meb_fcs_bord_poor)} such records.")
+
+        if not food_exp_gt_meb_fcs_bord_poor.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                food_exp_gt_meb_fcs_bord_poor.to_excel(writer, sheet_name='food_exp_gt_meb_fcs_pr_bln', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_food_exp_gt_meb_fcs_pr_bln = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_food_exp_gt_meb_fcs_pr_bln = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_food_exp_gt_meb_fcs_pr_bln}" '
+                f'download="filtered_data_food_exp_gt_meb_fcs_pr_bln.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (greater than MEB spending on food but poor to borderline fcs as Excel'
+                '</a>'
+            )
+            st.markdown(href_food_exp_gt_meb_fcs_pr_bln, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+    # ******END OF *HHs HAVING FOOD EXPENDITURE GREATER THAN MEB BUT HAVING POOR TO BORDERLINE****
     # Define the total target
     TARGET = 18000  # Set your target number of samples here
 
