@@ -1764,6 +1764,62 @@ def display_fsms_data(df):
         else:
             st.write("No records found for this condition.")
 
+    # Define livelihood activities and their cleaned-up names
+    livelihood_mapping = {
+        'liv_activ_crops': 'Crops',
+        'liv_activ_livestock': 'Livestock',
+        'liv_activ_donation_gift': 'Donation/Gift',
+        'liv_activ_business': 'Business',
+        'liv_activ_agric_wage_labour': 'Agricultural wage labour',
+        'liv_activ_non_agric_wage_labour': 'Non-agricultural wage labour',
+        'liv_activ_sale _aid_Food': 'Sale of aid food',
+        'liv_activ_sale_firewood_charcoal': 'Sale of firewood/charcoal',
+        'liv_activ_traditional_mining': 'Traditional mining',
+        'liv_activ_salaried_work': 'Salaried work',
+        'liv_activ_begging': 'Begging',
+        'liv_activ_remittances': 'Remittances',
+        'liv_activ_pension': 'Pension'
+    }
+
+    current_livelihood = list(livelihood_mapping.keys())
+
+    # Calculate mean income contribution from different livelihood activities
+    live_mean_score = expenditure_food_items_too_low_zero[current_livelihood].mean()
+
+    # Rename index for better presentation
+    live_mean_score.index = [livelihood_mapping[col] for col in live_mean_score.index]
+
+    # Sort in descending order
+    live_mean_score = live_mean_score.sort_values(ascending=False)
+
+    # Display the table in Streamlit with improved formatting
+    st.markdown(
+        "<div style='text-align: center; font-weight: bold; font-size:16px;'>Income Contribution from Different Livelihood Activities for HHs Spending Zero on Food</div>",
+        unsafe_allow_html=True
+    )
+    st.table(live_mean_score.to_frame().rename(columns={0: "Mean Income Contribution"}))
+
+    # List of columns to check for food source purchase
+    columns_to_check = [
+        'Q5_1b', 'Q5_2b', 'Q5_3b', 'Q5_4b', 'Q5_4_1b', 'Q5_4_2b', 'Q5_4_3b', 'Q5_4_4b',
+        'Q5_5b', 'Q5_5_1b', 'Q5_5_2b', 'Q5_6b', 'Q5_6_1b', 'Q5_7b', 'Q5_8b', 'Q5_9b'
+    ]
+
+    # Check if any of the specified columns contain 5 or 6, and create 'food_source_purchase' column
+    expenditure_food_items_too_low_zero['food_source_purchase'] = expenditure_food_items_too_low_zero[
+        columns_to_check].apply(lambda row: 1 if any(val in [5, 6] for val in row) else 0, axis=1)
+
+    # Calculate percentage of HHs that report purchase as a main food source despite zero spending
+    source_food_purchase = expenditure_food_items_too_low_zero['food_source_purchase'].value_counts(
+        normalize=True) * 100
+
+    # Display the table in Streamlit with improved formatting
+    st.markdown(
+        "<div style='text-align: center; font-weight: bold; font-size:16px;'>HHs That Report Zero Spending but Mention Purchase as Their Main Source of Food</div>",
+        unsafe_allow_html=True
+    )
+    st.table(source_food_purchase.to_frame().rename(columns={'food_source_purchase': 'Percentage (%)'}))
+
     # ******END OF *HHs HAVING FOOD EXPENDITURE GREATER THAN MEB BUT HAVING POOR TO BORDERLINE****
     # Define the total target
     TARGET = 12000  # Set your target number of samples here
