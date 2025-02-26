@@ -2168,7 +2168,7 @@ def display_cfsva_data(df):
 
         # ******START OF *HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house****
         st.markdown(
-            "52. *Records indicating HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house**"
+            "53. **Records indicating HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house**"
         )
         st.write(f"There are {len(hhs_q10_q3gt_0)} such records.")
 
@@ -2200,7 +2200,7 @@ def display_cfsva_data(df):
 
         # ******START OF *HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food****
         st.markdown(
-            "53. *Records indicating HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food**"
+            "54. **Records indicating HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food**"
         )
         st.write(f"There are {len(hhs_q20_q3gt_0)} such records.")
 
@@ -2232,7 +2232,7 @@ def display_cfsva_data(df):
 
         # ******START OF *HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food or no food of any kind****
         st.markdown(
-            "54. *Records indicating HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food, neither did they indicate that there was No food of any kind in the house**"
+            "55. **Records indicating HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food, neither did they indicate that there was No food of any kind in the house**"
         )
         st.write(f"There are {len(hhs_q10_q20_q3gt_0)} such records.")
 
