@@ -2108,61 +2108,157 @@ def display_cfsva_data(df):
         else:
             st.write("No records found for this condition.")
 
-    # Define livelihood activities and their cleaned-up names
-    livelihood_mapping = {
-        'liv_activ_crops': 'Crops',
-        'liv_activ_livestock': 'Livestock',
-        'liv_activ_donation_gift': 'Donation/Gift',
-        'liv_activ_business': 'Business',
-        'liv_activ_agric_wage_labour': 'Agricultural wage labour',
-        'liv_activ_non_agric_wage_labour': 'Non-agricultural wage labour',
-        'liv_activ_sale _aid_Food': 'Sale of aid food',
-        'liv_activ_sale_firewood_charcoal': 'Sale of firewood/charcoal',
-        'liv_activ_traditional_mining': 'Traditional mining',
-        'liv_activ_salaried_work': 'Salaried work',
-        'liv_activ_begging': 'Begging',
-        'liv_activ_remittances': 'Remittances',
-        'liv_activ_pension': 'Pension'
-    }
+        # Define livelihood activities and their cleaned-up names
+        livelihood_mapping = {
+            'liv_activ_crops': 'Crops',
+            'liv_activ_livestock': 'Livestock',
+            'liv_activ_donation_gift': 'Donation/Gift',
+            'liv_activ_business': 'Business',
+            'liv_activ_agric_wage_labour': 'Agricultural wage labour',
+            'liv_activ_non_agric_wage_labour': 'Non-agricultural wage labour',
+            'liv_activ_sale _aid_Food': 'Sale of aid food',
+            'liv_activ_sale_firewood_charcoal': 'Sale of firewood/charcoal',
+            'liv_activ_traditional_mining': 'Traditional mining',
+            'liv_activ_salaried_work': 'Salaried work',
+            'liv_activ_begging': 'Begging',
+            'liv_activ_remittances': 'Remittances',
+            'liv_activ_pension': 'Pension'
+        }
 
-    current_livelihood = list(livelihood_mapping.keys())
+        current_livelihood = list(livelihood_mapping.keys())
 
-    # Calculate mean income contribution from different livelihood activities
-    live_mean_score = expenditure_food_items_too_low_zero[current_livelihood].mean()
+        # Calculate mean income contribution from different livelihood activities
+        live_mean_score = expenditure_food_items_too_low_zero[current_livelihood].mean()
 
-    # Rename index for better presentation
-    live_mean_score.index = [livelihood_mapping[col] for col in live_mean_score.index]
+        # Rename index for better presentation
+        live_mean_score.index = [livelihood_mapping[col] for col in live_mean_score.index]
 
-    # Sort in descending order
-    live_mean_score = live_mean_score.sort_values(ascending=False)
+        # Sort in descending order
+        live_mean_score = live_mean_score.sort_values(ascending=False)
 
-    # Display the table in Streamlit with improved formatting
-    st.markdown(
-        "<div style='text-align: center; font-weight: bold; font-size:16px;'>Income Contribution from Different Livelihood Activities for HHs Spending Zero on Food</div>",
-        unsafe_allow_html=True
-    )
-    st.table(live_mean_score.to_frame().rename(columns={0: "Mean Income Contribution"}))
+        # Display the table in Streamlit with improved formatting
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold; font-size:16px;'>Income Contribution from Different Livelihood Activities for HHs Spending Zero on Food</div>",
+            unsafe_allow_html=True
+        )
+        st.table(live_mean_score.to_frame().rename(columns={0: "Mean Income Contribution"}))
 
-    # List of columns to check for food source purchase
-    columns_to_check = [
-        'Q5_1b', 'Q5_2b', 'Q5_3b', 'Q5_4b', 'Q5_4_1b', 'Q5_4_2b', 'Q5_4_3b', 'Q5_4_4b',
-        'Q5_5b', 'Q5_5_1b', 'Q5_5_2b', 'Q5_6b', 'Q5_6_1b', 'Q5_7b', 'Q5_8b', 'Q5_9b'
-    ]
+        # List of columns to check for food source purchase
+        columns_to_check = [
+            'Q5_1b', 'Q5_2b', 'Q5_3b', 'Q5_4b', 'Q5_4_1b', 'Q5_4_2b', 'Q5_4_3b', 'Q5_4_4b',
+            'Q5_5b', 'Q5_5_1b', 'Q5_5_2b', 'Q5_6b', 'Q5_6_1b', 'Q5_7b', 'Q5_8b', 'Q5_9b'
+        ]
 
-    # Check if any of the specified columns contain 5 or 6, and create 'food_source_purchase' column
-    expenditure_food_items_too_low_zero['food_source_purchase'] = expenditure_food_items_too_low_zero[
-        columns_to_check].apply(lambda row: 1 if any(val in [5, 6] for val in row) else 0, axis=1)
+        # Check if any of the specified columns contain 5 or 6, and create 'food_source_purchase' column
+        expenditure_food_items_too_low_zero['food_source_purchase'] = expenditure_food_items_too_low_zero[
+            columns_to_check].apply(lambda row: 1 if any(val in [5, 6] for val in row) else 0, axis=1)
 
-    # Calculate percentage of HHs that report purchase as a main food source despite zero spending
-    source_food_purchase = expenditure_food_items_too_low_zero['food_source_purchase'].value_counts(
-        normalize=True) * 100
+        # Calculate percentage of HHs that report purchase as a main food source despite zero spending
+        source_food_purchase = expenditure_food_items_too_low_zero['food_source_purchase'].value_counts(
+            normalize=True) * 100
 
-    # Display the table in Streamlit with improved formatting
-    st.markdown(
-        "<div style='text-align: center; font-weight: bold; font-size:16px;'>HHs That Report Zero Spending but Mention Purchase as Their Main Source of Food</div>",
-        unsafe_allow_html=True
-    )
-    st.table(source_food_purchase.to_frame().rename(columns={'food_source_purchase': 'Percentage (%)'}))
+        # Display the table in Streamlit with improved formatting
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold; font-size:16px;'>HHs That Report Zero Spending but Mention Purchase as Their Main Source of Food</div>",
+            unsafe_allow_html=True
+        )
+        st.table(source_food_purchase.to_frame().rename(columns={'food_source_purchase': 'Percentage (%)'}))
+
+        hhs_q10_q3gt_0 = df[(df['HHSQ3'] > 0) & ((df['HHSQ1'] == 0))]
+
+        # ******START OF *HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house****
+        st.markdown(
+            "52. *Records indicating HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house**"
+        )
+        st.write(f"There are {len(hhs_q10_q3gt_0)} such records.")
+
+        if not hhs_q10_q3gt_0.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                hhs_q10_q3gt_0.to_excel(writer, sheet_name='hhs_q10_q3gt_0', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_hhs_q10_q3gt_0 = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_hhs_q10_q3gt_0 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_hhs_q10_q3gt_0}" '
+                f'download="filtered_data_hhs_q10_q3gt_0.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (hhs_q3_gt 0 but hhs_q1_0 as Excel'
+                '</a>'
+            )
+            st.markdown(href_hhs_q10_q3gt_0, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+        # ******END OF *HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house****
+
+        hhs_q20_q3gt_0 = df[(df['HHSQ3'] > 0) & ((df['HHSQ2'] == 0))]
+
+        # ******START OF *HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food****
+        st.markdown(
+            "53. *Records indicating HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food**"
+        )
+        st.write(f"There are {len(hhs_q20_q3gt_0)} such records.")
+
+        if not hhs_q20_q3gt_0.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                hhs_q20_q3gt_0.to_excel(writer, sheet_name='hhs_q20_q3gt_0', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_hhs_q20_q3gt_0 = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_hhs_q20_q3gt_0 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_hhs_q20_q3gt_0}" '
+                f'download="filtered_data_hhs_q20_q3gt_0.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (hhs_q3_gt 0 but hhs_q2_0 as Excel'
+                '</a>'
+            )
+            st.markdown(href_hhs_q20_q3gt_0, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+        # ******END OF *HHs Go a whole day and night without eating but did not indicate that there was a day when there was No food of any kind in the house****
+
+        hhs_q10_q20_q3gt_0 = df[(df['HHSQ3'] > 0) & ((df['HHSQ1'] == 0) & (df['HHSQ2'] == 0))]
+
+        # ******START OF *HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food or no food of any kind****
+        st.markdown(
+            "54. *Records indicating HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food, neither did they indicate that there was No food of any kind in the house**"
+        )
+        st.write(f"There are {len(hhs_q10_q20_q3gt_0)} such records.")
+
+        if not hhs_q10_q20_q3gt_0.empty:
+            # 1) Write the DataFrame to an in-memory buffer as Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                hhs_q10_q20_q3gt_0.to_excel(writer, sheet_name='hhs_q10_q20_q3gt_0', index=False)
+            buffer.seek(0)  # Reset pointer to the beginning of the buffer
+
+            # 2) Encode the buffer as Base64
+            b64_hhs_q10_q20_q3gt_0 = base64.b64encode(buffer.read()).decode('utf-8')
+
+            # 3) Create a download link for the Excel file
+            href_hhs_q10_q20_q3gt_0 = (
+                f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_hhs_q10_q20_q3gt_0}" '
+                f'download="filtered_data_hhs_q10_q20_q3gt_0.xlsx" '
+                f'style="color: blue; text-decoration: underline;">'
+                'Download Filtered Data (hhs_q3_gt 0 but hhs_q2_0 and hhs_q1_0 as Excel'
+                '</a>'
+            )
+            st.markdown(href_hhs_q10_q20_q3gt_0, unsafe_allow_html=True)
+        else:
+            st.write("No records found for this condition.")
+
+    # ******END OF *HHs Go a whole day and night without eating but did not indicate that they Go to sleep hungry because there was not enough food or no food of any kind****
 
 
     # ******END OF *HHs HAVING FOOD EXPENDITURE GREATER THAN MEB BUT HAVING POOR TO BORDERLINE****
