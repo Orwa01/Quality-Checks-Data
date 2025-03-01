@@ -28,9 +28,6 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     login()
 else:
-    # Dashboard logic starts here
-    st.title("Dashboard")
-
     # Initialize session state for active module
     if "active_module" not in st.session_state:
         st.session_state.active_module = "cfsa"

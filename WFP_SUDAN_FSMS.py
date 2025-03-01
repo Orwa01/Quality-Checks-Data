@@ -77,32 +77,31 @@ def display_fsms_data(df):
 
     # Add a logo and styled header with background color
     st.markdown(f"""
-        <style>
-            .header {{
-                background-color: #f0f8ff; /* Light blue background */
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            }}
-            .header h1 {{
-                text-align: center;
-                color: #0047ab;
-                font-family: Arial, sans-serif;
-                font-size: 32px;
-                margin-bottom: 10px;
-            }}
-            .header img {{
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                width: 120px; /* Adjust logo size */
-            }}
-        </style>
-        <div class="header">
-            <img src="data:image/jpg;base64,{encoded_logo}" alt="WFP Logo">
-            <h1>Food Security Monitoring System (FSMS) Survey - WFP Sudan</h1>
-        </div>
-    """, unsafe_allow_html=True)
+            <style>
+                .header {{
+                    background-color: #f0f8ff; /* Light blue background */
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }}
+                .header h1 {{
+                    color: #0047ab;
+                    font-family: Arial, sans-serif;
+                    font-size: 40px;
+                    margin: 5;
+                }}
+                .header img {{
+                    width: 120px; /* Adjust logo size */
+                }}
+            </style>
+            <div class="header">
+                <h1>Food Security Monitoring System (FSMS) Survey - WFP Sudan</h1>
+                <img src="data:image/jpg;base64,{encoded_logo}" alt="WFP Logo">
+            </div>
+        """, unsafe_allow_html=True)
 
     # Add tabs for navigation
     tab1, tab2, tab3 = st.tabs(["Progress Summary", "Dashboard", "Data Issues"])
