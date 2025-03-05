@@ -104,9 +104,9 @@ def display_fsms_data(df):
         """, unsafe_allow_html=True)
 
     # Add tabs for navigation
-    tab1, tab2, tab3 = st.tabs(["Progress Summary", "Dashboard", "Data Issues"])
+    tab1, tab2, tab3 = st.tabs(["Progress Summary", "Outcome Indicators", "Data Issues"])
 
-    # Tab 2: Dashboard
+    # Tab 2: Outcome Indicators
     with tab2:
         # Writeup about Outcome Indicators in a styled colored box
         st.markdown("""
